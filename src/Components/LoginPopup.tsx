@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { message, Modal, Form, Input, Button, Divider, Typography } from "antd";
-import { FcGoogle } from "react-icons/fc";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import loginImg from "../assets/loginimg.png";
+
+
 import { useApi } from "../Context/useApi";
 import { useAuth } from "../Context/AuthContext";
+
+
+import { GoogleLogin } from '@react-oauth/google'
+import axios from 'axios'
 
 
 const { Title, Text } = Typography;
@@ -25,6 +30,35 @@ const LoginPopup = ({
   const { login: authLogin } = useAuth();
 
 
+  /* 🔐 GOOGLE LOGIN */
+// const handleGoogleSuccess = async (res: any) => {
+//   try {
+//     const googleToken = res.credential
+
+//     const response = await axios.post(
+//       'http://localhost:5000/api/auth/google',
+//       { token: googleToken }
+//     )
+
+//     // JWT backend se aayega
+//     localStorage.setItem('token', response.data.token)
+
+//     authLogin()
+//     message.success('Logged in with Google!')
+//     onClose()
+
+//   } catch (error) {
+//     console.error(error)
+//     message.error('Google login failed')
+//   }
+// }
+
+const handleGoogleSuccess = async (res: any) => {
+  console.log("Google credential:", res);
+  message.success('Google login successful!');
+};
+
+  
   /* 🔐 LOGIN SUBMIT */
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
@@ -99,7 +133,7 @@ const LoginPopup = ({
             <Title level={2} className="!text-white !mb-2">
               Welcome to ServEase
             </Title>
-            <Text className="text-white/90">
+            <Text className=" !text-gray-200 !mb-2">
               Your trusted partner for home services
             </Text>
           </div>
@@ -126,14 +160,23 @@ const LoginPopup = ({
           </div>
 
           {/* GOOGLE BUTTON */}
-          <Button
+          {/* <Button
             size="large"
             block
             icon={<FcGoogle className="text-xl" />}
             className="mb-4 !h-12 !rounded-lg !flex !items-center !justify-center"
           >
             Continue with Google
-          </Button>
+          </Button> */}
+
+          <div className="mb-4 flex justify-center">
+  <GoogleLogin
+    onSuccess={handleGoogleSuccess}
+    onError={() => message.error('Google Login Failed')}
+    useOneTap={false}
+  />
+</div>
+
 
           <Divider>OR</Divider>
 
@@ -285,6 +328,8 @@ const LoginPopup = ({
               )}
             </AnimatePresence>
           </div>
+          
+
 
           {/* TOGGLE */}
           <div className="text-center mt-6">

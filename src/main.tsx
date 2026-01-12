@@ -6,7 +6,10 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ApiProvider } from './Context/ApiContext.tsx'
 import { AuthProvider } from './Context/AuthContext.tsx'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
+
+console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID)
 // Ant Design theme configuration
 const theme = {
   token: {
@@ -31,15 +34,17 @@ const theme = {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <ConfigProvider theme={theme}>
-    <ApiProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <StrictMode>
-            <App />
-          </StrictMode>
-        </BrowserRouter>
-      </AuthProvider>
-    </ApiProvider>
-  </ConfigProvider>
+  <StrictMode>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <ConfigProvider theme={theme}>
+        <ApiProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </ApiProvider>
+      </ConfigProvider>
+    </GoogleOAuthProvider>
+  </StrictMode>
 )

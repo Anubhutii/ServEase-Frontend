@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-
+import Footer from "../Components/Footer";
 // Image imports
 import cleaning from "../assets/carwash.jpg";
 import plumber from "../assets/plumbing.jpg";
@@ -16,6 +16,10 @@ import ielectrician from "../assets/icons/electric-icon.png";
 import imen from "../assets/icons/men-icon.png";
 import iwomen from "../assets/icons/women-icon.png";
 import icallus from "../assets/icons/call_us-icon.png";
+
+import HeroSearchSection from "../Components/HeroSection";
+import PopularServices from "../Components/PopularServices";
+
 
 // Constants
 const ICON_CYCLE_INTERVAL = 1500;
@@ -112,78 +116,86 @@ const Home = () => {
   }, []);
 
   return (
-    <section className="flex flex-col md:flex-row items-start md:items-center md:min-h-[90vh] p-6 md:px-32 gap-6 md:gap-12">
-      {/* LEFT CONTENT */}
-      <motion.div {...leftContentAnimation} className="flex flex-col justify-start max-w-xl md:pt-10 md:pl-12">
-        {/* Hero Text */}
-        <motion.div {...heroTextAnimation}>
-          <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight">
-            On-demand services <br />
-            for your home
-          </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Cleaning, plumbing, cooking & more — trusted locals at work.
-          </p>
-          <p className="mt-2 text-base text-gray-500">
-            From your area to your doorstep — reliable home services.
-          </p>
-        </motion.div>
+    // <section className="flex flex-col md:flex-row items-start md:items-center md:min-h-[90vh] p-6 md:px-32 gap-6 md:gap-12">
+    //   {/* LEFT CONTENT */}
+    //   <motion.div {...leftContentAnimation} className="flex flex-col justify-start max-w-xl md:pt-10 md:pl-12">
+    //     {/* Hero Text */}
+    //     <motion.div {...heroTextAnimation}>
+    //       <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight">
+    //         On-demand services <br />
+    //         for your home
+    //       </h1>
+    //       <p className="mt-4 text-lg text-gray-600">
+    //         Cleaning, plumbing, cooking & more — trusted locals at work.
+    //       </p>
+    //       <p className="mt-2 text-base text-gray-500">
+    //         From your area to your doorstep — reliable home services.
+    //       </p>
+    //     </motion.div>
 
-        {/* Category Section */}
-        <motion.div {...categorySectionAnimation} className="mt-8 max-w-3xl border border-gray-200 rounded-lg p-6 bg-white">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            What are you looking for?
-          </h2>
+    //     {/* Category Section */}
+    //     <motion.div {...categorySectionAnimation} className="mt-8 max-w-3xl border border-gray-200 rounded-lg p-6 bg-white">
+    //       <h2 className="text-lg font-semibold text-gray-900 mb-4">
+    //         What are you looking for?
+    //       </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {/* Insta Help Card */}
-            <div className={serviceCardClass}>
-              <img
-                src={icons[activeIcon]}
-                className="w-10 h-10 mb-1 transition-transform duration-300 group-hover:scale-110"
-                alt="Insta Help"
-              />
-              <p className="relative text-xs font-medium">
-                Insta Help
-                <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-black transition-all duration-300 group-hover:w-full"></span>
-              </p>
-            </div>
+    //       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+    //         {/* Insta Help Card */}
+    //         <div className={serviceCardClass}>
+    //           <img
+    //             src={icons[activeIcon]}
+    //             className="w-10 h-10 mb-1 transition-transform duration-300 group-hover:scale-110"
+    //             alt="Insta Help"
+    //           />
+    //           <p className="relative text-xs font-medium">
+    //             Insta Help
+    //             <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-black transition-all duration-300 group-hover:w-full"></span>
+    //           </p>
+    //         </div>
 
-            {/* Service Cards */}
-            {services.map(([title, icon], i) => (
-              <motion.div
-                key={i}
-                {...getServiceCardAnimation(i)}
-                className={serviceCardClass}
-              >
-                <img
-                  src={icon}
-                  className="w-10 h-10 mb-1 transition-transform duration-300 group-hover:scale-110"
-                  alt={title}
-                />
-                <p className="relative text-xs font-medium">
-                  {title}
-                  <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-black transition-all duration-300 group-hover:w-full"></span>
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </motion.div>
+    //         {/* Service Cards */}
+    //         {services.map(([title, icon], i) => (
+    //           <motion.div
+    //             key={i}
+    //             {...getServiceCardAnimation(i)}
+    //             className={serviceCardClass}
+    //           >
+    //             <img
+    //               src={icon}
+    //               className="w-10 h-10 mb-1 transition-transform duration-300 group-hover:scale-110"
+    //               alt={title}
+    //             />
+    //             <p className="relative text-xs font-medium">
+    //               {title}
+    //               <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-black transition-all duration-300 group-hover:w-full"></span>
+    //             </p>
+    //           </motion.div>
+    //         ))}
+    //       </div>
+    //     </motion.div>
+    //   </motion.div>
 
-      {/* RIGHT IMAGE COLLAGE */}
-      <motion.div {...rightContentAnimation} className="hidden md:grid md:w-120 lg:w-140 grid-cols-2 gap-3 md:gap-4 mr-3 mx-auto">
-        {images.map((image, i) => (
-          <motion.img
-            key={i}
-            {...getImageAnimation(0.5 + i * 0.1)}
-            src={image.src}
-            alt={image.alt}
-            className={`${imageBaseClass} ${image.className}`}
-          />
-        ))}
-      </motion.div>
-    </section>
+    //   {/* RIGHT IMAGE COLLAGE */}
+    //   <motion.div {...rightContentAnimation} className="hidden md:grid md:w-120 lg:w-140 grid-cols-2 gap-3 md:gap-4 mr-3 mx-auto">
+    //     {images.map((image, i) => (
+    //       <motion.img
+    //         key={i}
+    //         {...getImageAnimation(0.5 + i * 0.1)}
+    //         src={image.src}
+    //         alt={image.alt}
+    //         className={`${imageBaseClass} ${image.className}`}
+    //       />
+    //     ))}
+    //   </motion.div>
+    // </section>
+    <>
+      <HeroSearchSection />
+      <PopularServices />
+      <Footer />
+      
+    </>
+      
+    
   );
 };
 
