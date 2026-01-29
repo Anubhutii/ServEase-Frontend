@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
-        className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-16 bg-white border-b border-gray-200 shadow-sm h-16 backdrop-blur-sm bg-white/95"
+        className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-16 bg-white border-b border-gray-200 shadow-sm h-16 backdrop-blur-sm"
       >
         {/* LEFT: Logo */}
         <motion.div
@@ -121,14 +121,55 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
 
-        {/* MOBILE: Menu Icon */}
+        {/* MOBILE: Menu Icon
         <div className="md:hidden">
           <Button
             type="text"
             icon={<FaBars size={20} />}
             onClick={() => setMenuOpen(true)}
           />
-        </div>
+        </div> */}
+
+        {/* MOBILE: Location | Login | Menu */}
+<div className="md:hidden flex items-center gap-2">
+
+  {/* Location */}
+  <Button
+    type="default"
+    size="small"
+    icon={<FaLocationDot />}
+    onClick={() => setShowLocation(true)}
+    className="flex items-center"
+  >
+    Location
+  </Button>
+
+  {/* Login / Avatar */}
+  {!isLoggedIn ? (
+    <Button
+      type="default"
+      size="small"
+      onClick={() => setShowLogin(true)}
+    >
+      Login
+    </Button>
+  ) : (
+    <Avatar
+      size="small"
+      icon={<UserOutlined />}
+      className="cursor-pointer"
+    />
+  )}
+
+  {/* Menu */}
+  <Button
+    type="text"
+    icon={<FaBars size={18} />}
+    onClick={() => setMenuOpen(true)}
+  />
+</div>
+
+
 
         {/* POPUPS */}
         <LoginPopup show={showLogin} onClose={() => setShowLogin(false)} />
@@ -144,73 +185,44 @@ const Navbar: React.FC = () => {
 
       {/* MOBILE DRAWER */}
       <Drawer
-        title="Menu"
-        placement="right"
-        onClose={() => setMenuOpen(false)}
-        open={menuOpen}
-        width={280}
+  title="Menu"
+  placement="right"
+  onClose={() => setMenuOpen(false)}
+  open={menuOpen}
+  width={280}
+>
+  <Space direction="vertical" size="middle" className="w-full">
+
+    {isLoggedIn && (
+      <Button
+        block
+        danger
+        icon={<LogoutOutlined />}
+        onClick={() => {
+          logout();
+          setMenuOpen(false);
+        }}
+        size="large"
       >
-        <Space direction="vertical" size="middle" className="w-full">
-          <Button
-            block
-            type="default"
-            icon={<FaLocationDot />}
-            onClick={() => {
-              setShowLocation(true);
-              setMenuOpen(false);
-            }}
-            size="large"
-          >
-            {selectedLocation}
-          </Button>
+        Logout
+      </Button>
+    )}
 
-          <Search
-            placeholder="Search services..."
-            allowClear
-            onSearch={onSearch}
-            className="w-full"
-          />
+    <Button
+      block
+      type="primary"
+      onClick={() => {
+        nav("/become-provider");
+        setMenuOpen(false);
+      }}
+      size="large"
+    >
+      Become Provider
+    </Button>
 
-          {!isLoggedIn ? (
-            <Button
-              block
-              type="default"
-              onClick={() => {
-                setShowLogin(true);
-                setMenuOpen(false);
-              }}
-              size="large"
-            >
-              Login
-            </Button>
-          ) : (
-            <Button
-              block
-              danger
-              icon={<LogoutOutlined />}
-              onClick={() => {
-                logout();
-                setMenuOpen(false);
-              }}
-              size="large"
-            >
-              Logout
-            </Button>
-          )}
+  </Space>
+</Drawer>
 
-          <Button
-            block
-            type="primary"
-            onClick={() => {
-              nav("/become-provider");
-              setMenuOpen(false);
-            }}
-            size="large"
-          >
-            Become Provider
-          </Button>
-        </Space>
-      </Drawer>
     </>
   );
 };

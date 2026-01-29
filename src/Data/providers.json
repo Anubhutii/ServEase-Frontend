@@ -1,0 +1,479 @@
+[
+    {
+        "id": 1,
+        "category": "Home Appliances",
+        "tag": "PACKAGE",
+        "title": "AC Super Saver Package",
+        "rating": 4.9,
+        "reviews": "12k",
+        "price": 499,
+        "originalPrice": 699,
+        "duration": "2 hrs",
+        "discount": "20%",
+        "services": [
+            "AC general servicing",
+            "Filter cleaning",
+            "Cooling check",
+            "Outdoor unit wash"
+        ]
+    },
+    {
+        "id": 2,
+        "category": "Cleaning",
+        "tag": "PACKAGE",
+        "title": "Home Cleaning Combo",
+        "rating": 4.8,
+        "reviews": "8k",
+        "price": 799,
+        "originalPrice": 999,
+        "duration": "3 hrs",
+        "discount": "25%",
+        "services": [
+            "Bathroom cleaning",
+            "Kitchen cleaning",
+            "Floor mopping",
+            "Dusting"
+        ]
+    },
+    {
+        "id": 3,
+        "category": "Electrician",
+        "tag": "PACKAGE",
+        "title": "Electrical Safety Check",
+        "rating": 4.7,
+        "reviews": "6.2k",
+        "price": 299,
+        "originalPrice": 399,
+        "duration": "1 hr",
+        "discount": "25%",
+        "services": [
+            "Switchboard inspection",
+            "Earthing check",
+            "Power leakage test",
+            "Wiring safety"
+        ]
+    },
+    {
+        "id": 4,
+        "category": "Plumber",
+        "tag": "PACKAGE",
+        "title": "Bathroom Plumbing Care",
+        "rating": 4.6,
+        "reviews": "5.4k",
+        "price": 349,
+        "originalPrice": 499,
+        "duration": "1.5 hrs",
+        "discount": "30%",
+        "services": [
+            "Tap leakage fix",
+            "Flush check",
+            "Drain cleaning",
+            "Pipe inspection"
+        ]
+    },
+    {
+        "id": 5,
+        "category": "Carpenter",
+        "tag": "PACKAGE",
+        "title": "Furniture Repair Combo",
+        "rating": 4.7,
+        "reviews": "4.9k",
+        "price": 399,
+        "originalPrice": 549,
+        "duration": "2 hrs",
+        "discount": "27%",
+        "services": [
+            "Door hinge fixing",
+            "Drawer repair",
+            "Furniture tightening",
+            "Minor polish work"
+        ]
+    },
+    {
+        "id": 6,
+        "category": "Women's Salon",
+        "tag": "PACKAGE",
+        "title": "Glow Facial + Wax Combo",
+        "rating": 4.9,
+        "reviews": "14k",
+        "price": 899,
+        "originalPrice": 1199,
+        "duration": "2.5 hrs",
+        "discount": "25%",
+        "services": [
+            "Fruit facial",
+            "Full arms wax",
+            "Eyebrow threading",
+            "Upper lip"
+        ]
+    },
+    {
+        "id": 7,
+        "category": "Men's Salon",
+        "tag": "PACKAGE",
+        "title": "Men's Grooming Package",
+        "rating": 4.8,
+        "reviews": "9.1k",
+        "price": 499,
+        "originalPrice": 699,
+        "duration": "1.5 hrs",
+        "discount": "28%",
+        "services": [
+            "Haircut",
+            "Beard trim",
+            "Head massage",
+            "Face cleanup"
+        ]
+    },
+    {
+        "id": 8,
+        "category": "Home Appliances",
+        "tag": "SINGLE",
+        "title": "AC Gas Refill",
+        "rating": 4.6,
+        "reviews": "5.1k",
+        "price": 1599,
+        "originalPrice": 1899,
+        "duration": "1 hr",
+        "discount": "15%",
+        "services": [
+            "Gas top-up",
+            "Leak check"
+        ]
+    },
+    {
+        "id": 9,
+        "category": "Home Appliances",
+        "tag": "SINGLE",
+        "title": "AC Installation",
+        "rating": 4.7,
+        "reviews": "3.8k",
+        "price": 1299,
+        "originalPrice": 1499,
+        "duration": "1.5 hrs",
+        "discount": "13%",
+        "services": [
+            "Wall mount setup",
+            "Pipe fitting"
+        ]
+    },
+    {
+        "id": 10,
+        "category": "Cleaning",
+        "tag": "SINGLE",
+        "title": "Bathroom Deep Cleaning",
+        "rating": 4.8,
+        "reviews": "6.4k",
+        "price": 299,
+        "originalPrice": 399,
+        "duration": "45 min",
+        "discount": "25%",
+        "services": [
+            "Tiles cleaning",
+            "Toilet sanitization"
+        ]
+    },
+    {
+        "id": 11,
+        "category": "Electrician",
+        "tag": "SINGLE",
+        "title": "Fan Repair",
+        "rating": 4.5,
+        "reviews": "2.9k",
+        "price": 199,
+        "originalPrice": 249,
+        "duration": "30 min",
+        "discount": "20%",
+        "services": [
+            "Wiring fix",
+            "Capacitor check"
+        ]
+    },
+    {
+        "id": 12,
+        "category": "Plumber",
+        "tag": "SINGLE",
+        "title": "Tap Repair",
+        "rating": 4.4,
+        "reviews": "3.2k",
+        "price": 149,
+        "originalPrice": 199,
+        "duration": "20 min",
+        "discount": "25%",
+        "services": [
+            "Leak fixing",
+            "Washer replacement"
+        ]
+    },
+    {
+        "id": 13,
+        "category": "Women's Salon",
+        "tag": "SINGLE",
+        "title": "Eyebrow Threading",
+        "rating": 4.9,
+        "reviews": "7.8k",
+        "price": 49,
+        "originalPrice": 79,
+        "duration": "10 min",
+        "discount": "38%",
+        "services": [
+            "Eyebrow shaping"
+        ]
+    },
+    {
+        "id": 14,
+        "category": "Men's Salon",
+        "tag": "SINGLE",
+        "title": "Haircut",
+        "rating": 4.7,
+        "reviews": "10.5k",
+        "price": 149,
+        "originalPrice": 199,
+        "duration": "20 min",
+        "discount": "25%",
+        "services": [
+            "Basic haircut",
+            "Neck cleanup"
+        ]
+    },
+    {
+        "id": 15,
+        "category": "Laptop Repair",
+        "tag": "SINGLE",
+        "title": "Laptop Diagnosis",
+        "rating": 4.7,
+        "reviews": "4.3k",
+        "price": 199,
+        "originalPrice": 299,
+        "duration": "30 min",
+        "discount": "33%",
+        "services": [
+            "Issue check",
+            "Performance test"
+        ]
+    },
+    {
+        "id": 16,
+        "category": "Laptop Repair",
+        "tag": "SINGLE",
+        "title": "Laptop Keyboard Repair",
+        "rating": 4.6,
+        "reviews": "2.7k",
+        "price": 499,
+        "originalPrice": 699,
+        "duration": "1 hr",
+        "discount": "28%",
+        "services": [
+            "Key replacement",
+            "Cleaning"
+        ]
+    },
+    {
+        "id": 17,
+        "category": "Laptop Repair",
+        "tag": "SINGLE",
+        "title": "Windows Installation",
+        "rating": 4.8,
+        "reviews": "6.9k",
+        "price": 599,
+        "originalPrice": 799,
+        "duration": "1.5 hrs",
+        "discount": "25%",
+        "services": [
+            "OS setup",
+            "Driver install"
+        ]
+    },
+    {
+        "id": 18,
+        "category": "Kitchen Cleaning",
+        "tag": "SINGLE",
+        "title": "Kitchen Deep Cleaning",
+        "rating": 4.9,
+        "reviews": "9.2k",
+        "price": 499,
+        "originalPrice": 699,
+        "duration": "1 hr",
+        "discount": "28%",
+        "services": [
+            "Platform cleaning",
+            "Oil stain removal"
+        ]
+    },
+    {
+        "id": 19,
+        "category": "Kitchen Cleaning",
+        "tag": "SINGLE",
+        "title": "Chimney Cleaning",
+        "rating": 4.7,
+        "reviews": "4.8k",
+        "price": 399,
+        "originalPrice": 549,
+        "duration": "45 min",
+        "discount": "27%",
+        "services": [
+            "Filter wash",
+            "Grease removal"
+        ]
+    },
+    {
+        "id": 20,
+        "category": "Washroom Cleaning",
+        "tag": "SINGLE",
+        "title": "Bathroom Deep Cleaning",
+        "rating": 4.8,
+        "reviews": "11k",
+        "price": 299,
+        "originalPrice": 399,
+        "duration": "40 min",
+        "discount": "25%",
+        "services": [
+            "Tile scrubbing",
+            "Sanitization"
+        ]
+    },
+    {
+        "id": 21,
+        "category": "Washroom Cleaning",
+        "tag": "SINGLE",
+        "title": "Toilet Pot Cleaning",
+        "rating": 4.6,
+        "reviews": "5.2k",
+        "price": 149,
+        "originalPrice": 199,
+        "duration": "20 min",
+        "discount": "25%",
+        "services": [
+            "Stain removal",
+            "Disinfection"
+        ]
+    },
+    {
+        "id": 22,
+        "category": "Home Cleaning",
+        "tag": "SINGLE",
+        "title": "Full Home Deep Cleaning",
+        "rating": 4.9,
+        "reviews": "15k",
+        "price": 1499,
+        "originalPrice": 1899,
+        "duration": "4 hrs",
+        "discount": "21%",
+        "services": [
+            "All rooms cleaning",
+            "Bathroom + kitchen"
+        ]
+    },
+    {
+        "id": 23,
+        "category": "Home Cleaning",
+        "tag": "SINGLE",
+        "title": "Sofa Cleaning",
+        "rating": 4.7,
+        "reviews": "6.1k",
+        "price": 399,
+        "originalPrice": 549,
+        "duration": "45 min",
+        "discount": "27%",
+        "services": [
+            "Foam wash",
+            "Vacuum dry"
+        ]
+    },
+    {
+        "id": 24,
+        "category": "Plumber",
+        "tag": "SINGLE",
+        "title": "Drain Blockage Removal",
+        "rating": 4.6,
+        "reviews": "4.4k",
+        "price": 249,
+        "originalPrice": 349,
+        "duration": "30 min",
+        "discount": "29%",
+        "services": [
+            "Blockage removal",
+            "Water flow test"
+        ]
+    },
+    {
+        "id": 25,
+        "category": "Plumber",
+        "tag": "SINGLE",
+        "title": "Water Tank Cleaning",
+        "rating": 4.8,
+        "reviews": "7.3k",
+        "price": 799,
+        "originalPrice": 999,
+        "duration": "2 hrs",
+        "discount": "20%",
+        "services": [
+            "Tank wash",
+            "Sludge removal"
+        ]
+    },
+    {
+        "id": 26,
+        "category": "Carpenter",
+        "tag": "SINGLE",
+        "title": "Door Lock Repair",
+        "rating": 4.5,
+        "reviews": "3.6k",
+        "price": 199,
+        "originalPrice": 249,
+        "duration": "30 min",
+        "discount": "20%",
+        "services": [
+            "Lock fixing",
+            "Alignment check"
+        ]
+    },
+    {
+        "id": 27,
+        "category": "Carpenter",
+        "tag": "SINGLE",
+        "title": "Bed Assembly",
+        "rating": 4.7,
+        "reviews": "5.9k",
+        "price": 349,
+        "originalPrice": 449,
+        "duration": "45 min",
+        "discount": "22%",
+        "services": [
+            "Installation",
+            "Screw tightening"
+        ]
+    },
+    {
+        "id": 28,
+        "category": "Spa",
+        "tag": "SINGLE",
+        "title": "Full Body Relax Massage",
+        "rating": 4.9,
+        "reviews": "13k",
+        "price": 1299,
+        "originalPrice": 1599,
+        "duration": "1 hr",
+        "discount": "19%",
+        "services": [
+            "Oil massage",
+            "Stress relief"
+        ]
+    },
+    {
+        "id": 29,
+        "category": "Spa",
+        "tag": "SINGLE",
+        "title": "Head & Shoulder Massage",
+        "rating": 4.8,
+        "reviews": "8.6k",
+        "price": 499,
+        "originalPrice": 649,
+        "duration": "30 min",
+        "discount": "23%",
+        "services": [
+            "Tension relief",
+            "Relax therapy"
+        ]
+    }
+]

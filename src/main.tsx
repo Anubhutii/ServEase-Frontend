@@ -7,9 +7,10 @@ import { BrowserRouter } from 'react-router-dom'
 import { ApiProvider } from './Context/ApiContext.tsx'
 import { AuthProvider } from './Context/AuthContext.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-
+import { CartProvider } from "./Context/CartContext.tsx";
 
 console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID)
+
 // Ant Design theme configuration
 const theme = {
   token: {
@@ -39,9 +40,11 @@ createRoot(document.getElementById('root')!).render(
       <ConfigProvider theme={theme}>
         <ApiProvider>
           <AuthProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
+            <CartProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </CartProvider>
           </AuthProvider>
         </ApiProvider>
       </ConfigProvider>

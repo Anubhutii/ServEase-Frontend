@@ -7,6 +7,8 @@ import BecomeProvider from "./Pages/ServiceProviderPage";
 import ServicePage from './Pages/ServicePage';
 import ViewAllServices from "./Components/ViewAllServices";
 import NotFound from "./Components/ViewAllServices";
+import CartPage from "./Pages/CartPage";
+
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/service" element={<ServicePage />} />
         <Route path="/all-services" element={<ViewAllServices />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/cart" element={<CartPage />} />
+
       </Routes>
     </>
   );

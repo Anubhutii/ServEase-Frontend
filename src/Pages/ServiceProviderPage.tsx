@@ -131,7 +131,7 @@ const ServiceProviderCards = () => {
 
         {/* CENTER UX — REGISTRATION PREVIEW */}
         <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl px-6 py-5 w-[280px]">
+          <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl px-6 py-5 w-70">
             <p className="text-sm font-semibold text-slate-900 mb-3">
               Registration takes only a few steps
             </p>
@@ -213,7 +213,7 @@ const ServiceProviderCards = () => {
       {/* WHY JOIN SERVEASE */}
 <section className="w-full py-12 mt-10 relative overflow-hidden">
   {/* background gradient */}
-  <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-white to-emerald-50" />
+  <div className="absolute inset-0 -z-10 bg-linear-to-br from-blue-50 via-white to-emerald-50" />
 
   <div className="max-w-7xl mx-auto px-4">
     <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-8">
@@ -266,7 +266,7 @@ const ServiceProviderCards = () => {
         >
           {/* gradient overlay */}
           <div
-            className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition`}
+            className={`absolute inset-0 rounded-2xl bg-linear-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition`}
           />
 
           <div className="relative">

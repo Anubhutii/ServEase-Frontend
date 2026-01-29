@@ -1,43 +1,100 @@
 import React, { useState } from "react";
 import { Percent } from "lucide-react";
+import { useCart } from "../Context/CartContext";
+
+import { useNavigate } from "react-router-dom";
+
 
 const SPRightSidebar: React.FC = () => {
+  const { cart, increaseQty, decreaseQty, total } = useCart();
+
   const [showAllOffers, setShowAllOffers] = useState(false);
+  const navigate = useNavigate();
+
 
   const offers = [
-  {
-    title: "No visitation fee",
-    subtitle: "On your first booking",
-  },
-  {
-    title: "Flat ₹50 welcome cashback",
-    subtitle: "Valid on first successful service",
-  },
-  {
-    title: "Extra savings via UPI",
-    subtitle: "Available on selected UPI payments",
-  },
-  {
-    title: "Special launch offer",
-    subtitle: "Limited-time deals for early users",
-  },
-];
-
+    {
+      title: "No visitation fee",
+      subtitle: "On your first booking",
+    },
+    {
+      title: "Flat ₹50 welcome cashback",
+      subtitle: "Valid on first successful service",
+    },
+    {
+      title: "Extra savings via UPI",
+      subtitle: "Available on selected UPI payments",
+    },
+    {
+      title: "Special launch offer",
+      subtitle: "Limited-time deals for early users",
+    },
+  ];
 
   const visibleOffers = showAllOffers ? offers : offers.slice(0, 1);
 
   return (
     <div className="w-full space-y-4">
 
-      {/* CART EMPTY */}
-      <div className="bg-white rounded-xl border border-gray-100 hover:border-gray-300 shadow-sm p-6 text-center">
-        <div className="mx-auto mb-3 h-14 w-14 flex items-center justify-center rounded-full bg-linear-to-br from-blue-100 to-purple-100">
-          <span className="text-3xl">🛒</span>
-        </div>
-        <p className="text-sm text-gray-600">
-  Add a service to book instantly
-</p>
+      {/* CART */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4">
 
+        <h3 className="font-semibold text-lg">Cart</h3>
+
+        {cart.length === 0 ? (
+          <div className="text-center py-4">
+            <div className="mx-auto mb-3 h-14 w-14 flex items-center justify-center rounded-full bg-linear-to-br from-blue-100 to-purple-100">
+              <span className="text-3xl">🛒</span>
+            </div>
+            <p className="text-sm text-gray-600">
+              Add a service to book instantly
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* CART ITEMS */}
+            <div className="space-y-3">
+              {cart.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center"
+                >
+                  <div>
+                    <p className="text-sm font-medium leading-tight">
+                      {item.title}
+                    </p>
+                    <p className="text-xs text-gray-500">₹{item.price}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 border border-purple-300 rounded-lg px-2 py-1">
+                    <button
+                      onClick={() => decreaseQty(item.id)}
+                      className="text-purple-600 text-lg font-medium"
+                    >
+                      −
+                    </button>
+
+                    <span className="text-sm font-medium">
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      onClick={() => increaseQty(item.id)}
+                      className="text-purple-600 text-lg font-medium"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* TOTAL BUTTON */}
+            <button onClick={() => navigate("/cart")} className="w-full bg-purple-600 text-white py-2.5 rounded-xl font-medium hover:bg-purple-700 transition">
+              ₹{total} · View Cart
+            </button>
+          </>
+        )}
       </div>
 
       {/* OFFERS */}
