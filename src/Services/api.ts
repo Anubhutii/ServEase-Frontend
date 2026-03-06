@@ -21,3 +21,7 @@ export const registerUser = (payload: any) => {
 export const registerProvider = (payload: any) => {
   return axios.post("/api/provider/register", payload);
 };
+
+export const createProvider = (payload: any) => {
+  return axios.post("/api/provider/create-provider", payload);
+};

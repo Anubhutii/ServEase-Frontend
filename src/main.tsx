@@ -8,6 +8,9 @@ import { ApiProvider } from './Context/ApiContext.tsx'
 import { AuthProvider } from './Context/AuthContext.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { CartProvider } from "./Context/CartContext.tsx";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID)
 
@@ -36,18 +39,20 @@ const theme = {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <ConfigProvider theme={theme}>
-        <ApiProvider>
-          <AuthProvider>
-            <CartProvider>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </CartProvider>
-          </AuthProvider>
-        </ApiProvider>
-      </ConfigProvider>
-    </GoogleOAuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <ConfigProvider theme={theme}>
+          <ApiProvider>
+            <AuthProvider>
+              <CartProvider>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </CartProvider>
+            </AuthProvider>
+          </ApiProvider>
+        </ConfigProvider>
+      </GoogleOAuthProvider>
+    </QueryClientProvider>
   </StrictMode>
 )

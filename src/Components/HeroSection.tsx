@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { Search, Star, Users, CheckCircle } from "lucide-react";
+import { Search, Star, Users } from "lucide-react";
 
 import herobg from '../assets/hero-bg.png';
 import heroimg from '../assets/hero-img1.png'

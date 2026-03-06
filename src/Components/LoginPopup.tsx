@@ -10,7 +10,7 @@ import { useAuth } from "../Context/AuthContext";
 
 
 import { GoogleLogin } from '@react-oauth/google'
-import axios from 'axios'
+import axios from '../Services/axios'
 
 
 const { Title, Text } = Typography;
@@ -31,34 +31,43 @@ const LoginPopup = ({
 
 
   /* 🔐 GOOGLE LOGIN */
-// const handleGoogleSuccess = async (res: any) => {
-//   try {
-//     const googleToken = res.credential
+  const handleGoogleSuccess = async (res: any) => {
+    try {
+      if (!res.credential) {
+        throw new Error("No credential returned from Google");
+      }
 
-//     const response = await axios.post(
-//       'http://localhost:5000/api/auth/google',
-//       { token: googleToken }
-//     )
+      const idToken = res.credential;
 
-//     // JWT backend se aayega
-//     localStorage.setItem('token', response.data.token)
+      const response = await axios.post("/api/auth/google", {
+        idToken,
+      });
 
-//     authLogin()
-//     message.success('Logged in with Google!')
-//     onClose()
+      const { success, token, user } = response.data;
 
-//   } catch (error) {
-//     console.error(error)
-//     message.error('Google login failed')
-//   }
-// }
+      if (success) {
+        // Store JWT token in localStorage
+        localStorage.setItem("token", token);
 
-const handleGoogleSuccess = async (res: any) => {
-  console.log("Google credential:", res);
-  message.success('Google login successful!');
-};
+        // Save user data in state/context
+        authLogin(user);
 
-  
+        message.success("Logged in with Google!");
+
+        // Close modal
+        onClose();
+
+        // Redirect user to dashboard/home page
+        window.location.href = "/";
+      } else {
+        message.error("Google login failed");
+      }
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      message.error(error.response?.data?.message || "Google login failed");
+    }
+  };
+
   /* 🔐 LOGIN SUBMIT */
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
@@ -170,12 +179,12 @@ const handleGoogleSuccess = async (res: any) => {
           </Button> */}
 
           <div className="mb-4 flex justify-center">
-  <GoogleLogin
-    onSuccess={handleGoogleSuccess}
-    onError={() => message.error('Google Login Failed')}
-    useOneTap={false}
-  />
-</div>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => message.error('Google Login Failed')}
+              useOneTap={false}
+            />
+          </div>
 
 
           <Divider>OR</Divider>
@@ -328,7 +337,7 @@ const handleGoogleSuccess = async (res: any) => {
               )}
             </AnimatePresence>
           </div>
-          
+
 
 
           {/* TOGGLE */}

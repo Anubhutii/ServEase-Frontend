@@ -1,11 +1,10 @@
 // components/HeroBanner.tsx
 import { motion } from "framer-motion";
-import HeroCanvas from "./HeroCanvas";
 import type { FC } from "react";
 
 const HeroBanner: FC = () => {
   return (
-    <section className="relative flex flex-col md:flex-row items-center min-h-[90vh] px-6 md:px-24 bg-gradient-to-br from-slate-50 to-blue-50 overflow-hidden">
+    <section className="relative flex flex-col md:flex-row items-center min-h-[90vh] px-6 md:px-24 bg-linear-to-br from-slate-50 to-blue-50 overflow-hidden">
       
       {/* LEFT CONTENT */}
       <motion.div
@@ -65,9 +64,9 @@ const HeroBanner: FC = () => {
         initial={{ opacity: 0, x: 60 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative w-full md:w-1/2 h-[420px] md:h-[520px]"
+        className="relative w-full md:w-1/2 h-105 md:h-130"
       >
-        <HeroCanvas />
+  
       </motion.div>
 
     </section>
