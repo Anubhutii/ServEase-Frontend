@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import Footer from "../Components/Footer";
 // Image imports
 import cleaning from "../assets/carwash.jpg";

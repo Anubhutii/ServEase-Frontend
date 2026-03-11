@@ -1,166 +1,191 @@
-import React, { useState } from "react";
-import { Percent } from "lucide-react";
+import React, { useMemo, useState } from "react";
 import { useCart } from "../Context/CartContext";
-
+import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Input, message } from "antd";
+import { Trash2 } from "lucide-react";
+import axios from "../Services/axios";
 
+const { TextArea } = Input;
+
+const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const getUpcomingDays = (numDays = 7) => {
+  const upcoming = [];
+  const today = new Date();
+
+  for (let i = 0; i < numDays; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+
+    let label = '';
+
+    if (i === 0) {
+      label = 'Today';
+    } else if (i === 1) {
+      label = 'Tomorrow';
+    } else {
+      const dayName = daysOfWeek[date.getDay()];
+      const dayNum = date.getDate();
+      const monthName = monthNames[date.getMonth()];
+      label = `${dayName}, ${dayNum} ${monthName}`;
+    }
+
+    const value = date.toISOString().split('T')[0];
+    upcoming.push({ value, label });
+  }
+  return upcoming;
+};
 
 const SPRightSidebar: React.FC = () => {
-  const { cart, increaseQty, decreaseQty, total } = useCart();
-
-  const [showAllOffers, setShowAllOffers] = useState(false);
+  const { cart, decreaseQty, updateBookingDay, updateDescription, clearCart } = useCart();
+  const { isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
 
-  const offers = [
-    {
-      title: "No visitation fee",
-      subtitle: "On your first booking",
-    },
-    {
-      title: "Flat ₹50 welcome cashback",
-      subtitle: "Valid on first successful service",
-    },
-    {
-      title: "Extra savings via UPI",
-      subtitle: "Available on selected UPI payments",
-    },
-    {
-      title: "Special launch offer",
-      subtitle: "Limited-time deals for early users",
-    },
-  ];
+  const upcomingDays = useMemo(() => getUpcomingDays(7), []);
 
-  const visibleOffers = showAllOffers ? offers : offers.slice(0, 1);
+  const handleRequest = async () => {
+    if (!isLoggedIn || !user) {
+      message.error("Please login to proceed with booking");
+      return;
+    }
+
+    if (!cart.every((item: any) => item.bookingDay)) {
+      message.error("Please select booking days for all items");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await Promise.all(cart.map((item: any) =>
+        axios.post('/api/bookings/direct', {
+          user: user?.id || user?._id,
+          provider: item.id,
+          service_details: `${item.title} - Description: ${item.description || "N/A"}`,
+          final_price: item.price,
+          completion_date: new Date(item.bookingDay).toISOString()
+        })
+      ));
+      message.success("Booking requests sent successfully to the providers!");
+      clearCart();
+      navigate('/user-dashboard');
+    } catch (error) {
+      console.error("Booking error:", error);
+      message.error("Failed to send booking requests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 transition-colors duration-500">
 
-      {/* CART */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4">
+      {/* 1. ACCOUNT SECTION */}
+      {!isLoggedIn && (
+        <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5 space-y-3">
+          <div>
+            <h3 className="font-bold text-[16px] text-slate-800 dark:text-white">Account</h3>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400">Login to continue your booking</p>
+          </div>
+          <button onClick={() => navigate("/")} className="w-full bg-[#4640ff] hover:bg-[#3135c7] text-white py-3 rounded-[12px] font-semibold transition shadow-md">
+            Login / Sign up
+          </button>
+        </div>
+      )}
 
-        <h3 className="font-semibold text-lg">Cart</h3>
+      {/* 2. YOUR SERVICES */}
+      <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
+        <h3 className="font-bold text-[16px] text-slate-800 dark:text-white mb-4">Your services</h3>
 
         {cart.length === 0 ? (
-          <div className="text-center py-4">
-            <div className="mx-auto mb-3 h-14 w-14 flex items-center justify-center rounded-full bg-linear-to-br from-blue-100 to-purple-100">
-              <span className="text-3xl">🛒</span>
-            </div>
-            <p className="text-sm text-gray-600">
-              Add a service to book instantly
-            </p>
+          <div className="text-center py-6 bg-gray-50 dark:bg-slate-800/40 rounded-xl">
+            <p className="text-[14px] text-gray-500 dark:text-gray-400">Your cart is empty</p>
           </div>
         ) : (
-          <>
-            {/* CART ITEMS */}
-            <div className="space-y-3">
-              {cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between items-center"
-                >
-                  <div>
-                    <p className="text-sm font-medium leading-tight">
+          <div className="space-y-4">
+            {cart.map((item) => (
+              <div key={item.id} className="flex flex-col gap-3 bg-gray-50 dark:bg-[#1a202c] p-3 rounded-xl border border-gray-100 dark:border-slate-800/60">
+                <div className="flex justify-between items-center">
+                  <div className="flex-1 pr-3">
+                    <p className="text-[14px] font-bold leading-tight text-slate-800 dark:text-gray-100 mb-1">
                       {item.title}
                     </p>
-                    <p className="text-xs text-gray-500">₹{item.price}</p>
+                    <p className="text-[13px] text-[#4a90e2] font-semibold">₹{item.price}</p>
                   </div>
 
-                  <div className="flex items-center gap-3 border border-purple-300 rounded-lg px-2 py-1">
+                  <div>
                     <button
                       onClick={() => decreaseQty(item.id)}
-                      className="text-purple-600 text-lg font-medium"
+                      className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                      title="Remove provider from cart"
                     >
-                      −
-                    </button>
-
-                    <span className="text-sm font-medium">
-                      {item.quantity}
-                    </span>
-
-                    <button
-                      onClick={() => increaseQty(item.id)}
-                      className="text-purple-600 text-lg font-medium"
-                    >
-                      +
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* TOTAL BUTTON */}
-            <button onClick={() => navigate("/cart")} className="w-full bg-purple-600 text-white py-2.5 rounded-xl font-medium hover:bg-purple-700 transition">
-              ₹{total} · View Cart
-            </button>
-          </>
+                {/* Individual Day Selector */}
+                <div className="mt-2">
+                  <p className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 mb-2">Select Day</p>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {upcomingDays.map((day) => {
+                      const isSelected = item.bookingDay === day.value;
+                      return (
+                        <button
+                          key={day.value}
+                          onClick={() => updateBookingDay(item.id, day.value)}
+                          className={`flex-shrink-0 px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-colors whitespace-nowrap border
+                            ${isSelected
+                              ? 'bg-[#4640ff] text-white border-[#4640ff]'
+                              : 'bg-white dark:bg-[#1b2230] text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-[#4640ff] dark:hover:border-[#4640ff]'}
+                          `}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Individual Description Area */}
+                <div className="mt-1">
+                  <p className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 mt-1">Reason / Description</p>
+                  <TextArea
+                    value={item.description || ""}
+                    onChange={(e) => updateDescription(item.id, e.target.value)}
+                    placeholder="Describe your requirement (e.g., AC not cooling, kitchen deep cleaning, wiring issue)"
+                    autoSize={{ minRows: 2, maxRows: 4 }}
+                    maxLength={250}
+                    className="!rounded-[10px] !text-[13px] dark:!bg-[#1b2230] dark:!border-slate-700 dark:!text-gray-300 dark:placeholder:!text-gray-500 hover:!border-[#4640ff] focus:!border-[#4640ff]"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* OFFERS */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-4">
-        {visibleOffers.map((offer, index) => (
-          <Offer
-            key={index}
-            title={offer.title}
-            subtitle={offer.subtitle}
-          />
-        ))}
 
+
+      {/* 5. REQUEST SUMMARY */}
+      <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
         <button
-          onClick={() => setShowAllOffers(!showAllOffers)}
-          className="text-sm text-purple-600 font-medium flex items-center gap-1"
+          onClick={handleRequest}
+          disabled={cart.length === 0 || !cart.every((item: any) => item.bookingDay) || loading}
+          className={`w-full py-3 md:py-3.5 rounded-[12px] font-bold text-[15px] transition shadow-md mb-4
+            ${(cart.length > 0 && cart.every((item: any) => item.bookingDay))
+              ? 'bg-[#4640ff] hover:bg-[#3135c7] text-white cursor-pointer'
+              : 'bg-gray-200 dark:bg-[#1e2533] text-gray-400 dark:text-slate-500 cursor-not-allowed'
+            }`}
         >
-          {showAllOffers ? "View Less Offers" : "View More Offers"}
-          <span className="text-base">
-            {showAllOffers ? "⌃" : "⌄"}
-          </span>
-        </button>
-      </div>
-
-      {/* UC PROMISE */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4 relative">
-        <h4 className="font-semibold mb-3">ServEase Promise</h4>
-
-        <ul className="text-sm text-gray-700 space-y-2">
-          <li className="flex items-center gap-2">
-            <span className="text-green-600">✔</span> Verified Professionals
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="text-green-600">✔</span> Hassle Free Booking
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="text-green-600">✔</span> Transparent Pricing
-          </li>
-        </ul>
-
-        <div className="absolute top-4 right-4 text-xs bg-linear-to-br from-blue-100 to-purple-100 text-blue-700 px-3 py-1 rounded-full font-medium">
-          Quality Assured
-        </div>
-      </div>
+          {loading ? "Processing..." : (cart.length > 0 && !cart.every((item: any) => item.bookingDay) ? 'Select Booking Days' : 'Request Now')}
+        </button>      </div>
     </div>
   );
 };
 
 export default SPRightSidebar;
-
-/* -------------------- */
-/* OFFER ROW COMPONENT */
-/* -------------------- */
-const Offer = ({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle: string;
-}) => (
-  <div className="flex gap-3">
-    <div className="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-      <Percent size={16} />
-    </div>
-    <div>
-      <p className="text-sm font-medium">{title}</p>
-      <p className="text-xs text-gray-500">{subtitle}</p>
-    </div>
-  </div>
-);

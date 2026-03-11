@@ -129,66 +129,64 @@ const ViewAllServices: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-4 py-4 max-w-7xl mx-auto">
-      <h1 className="text-xl md:text-2xl font-semibold mb-4">
+    <div className="px-4 py-4 max-w-7xl mx-auto transition-colors duration-500">
+      <h1 className="text-xl md:text-2xl font-semibold mb-4 text-slate-800 dark:text-white">
         All Services
       </h1>
 
       {/* ================= MOBILE CATEGORY TABS ================= */}
       {/* ================= MOBILE CATEGORY SCROLLER ================= */}
-<div className="md:hidden relative mb-4">
-  {/* LEFT FADE */}
-  <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white to-transparent z-10" />
+      <div className="md:hidden relative mb-4">
+        {/* LEFT FADE */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10" />
 
-  {/* RIGHT FADE */}
-  <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white to-transparent z-10" />
+        {/* RIGHT FADE */}
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10" />
 
-  <div
-    className="
+        <div
+          className="
       flex gap-3 overflow-x-auto
       px-1 pb-2
       scroll-smooth
       snap-x snap-mandatory
       no-scrollbar
     "
-  >
-    {SERVICE_CATEGORIES.map((category) => (
-      <button
-        key={category.id}
-        onClick={() => setActiveCategory(category)}
-        className={`
+        >
+          {SERVICE_CATEGORIES.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category)}
+              className={`
           snap-start
           whitespace-nowrap
           px-5 py-2.5
           rounded-full
           text-sm font-medium
           transition-all duration-300
-          ${
-            activeCategory.id === category.id
-              ? "bg-blue-400 text-white shadow-xs scale-[1]"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }
+          ${activeCategory.id === category.id
+                  ? "bg-blue-500 dark:bg-blue-600 text-white shadow-md scale-[1.02]"
+                  : "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 border border-transparent dark:border-slate-700"
+                }
         `}
-      >
-        {category.title}
-      </button>
-    ))}
-  </div>
-</div>
+            >
+              {category.title}
+            </button>
+          ))}
+        </div>
+      </div>
 
 
-      <div className="flex gap-8">
+      <div className="flex flex-col md:flex-row gap-8">
         {/* ================= DESKTOP SIDEBAR ================= */}
         <aside className="w-60 shrink-0 sticky top-24 hidden md:block">
           {SERVICE_CATEGORIES.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category)}
-              className={`w-full text-left px-4 py-2 rounded-lg mb-1 transition
-                ${
-                  activeCategory.id === category.id
-                    ? "bg-blue-100 text-blue-700 font-semibold border-l-4 border-blue-600"
-                    : "hover:bg-gray-100 text-gray-700"
+              className={`w-full text-left px-4 py-2.5 rounded-lg mb-1 transition-all duration-200
+                ${activeCategory.id === category.id
+                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold border-l-4 border-blue-600 shadow-sm"
+                  : "hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-400"
                 }`}
             >
               {category.title}
@@ -198,16 +196,16 @@ const ViewAllServices: React.FC = () => {
 
         {/* ================= CONTENT ================= */}
         <main className="flex-1">
-          <h2 className="text-lg md:text-xl font-semibold mb-1">
+          <h2 className="text-lg md:text-xl font-semibold mb-1 text-slate-800 dark:text-white">
             {activeCategory.title}
           </h2>
 
-          <p className="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">
+          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4 md:mb-6">
             Verified professionals • Transparent pricing • Same-day service
           </p>
 
           {/* GRID */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {activeCategory.items.map((item) => {
               const serviceSlug = item.name
                 .toLowerCase()
@@ -221,41 +219,41 @@ const ViewAllServices: React.FC = () => {
                   className="
                     relative cursor-pointer group
                     rounded-2xl
-                    border border-gray-200
+                    border border-gray-200 dark:border-slate-800
                     p-3 md:p-4
-                    bg-white
-                    hover:bg-gray-50
-                    hover:shadow-lg hover:-translate-y-1
-                    hover:border-blue-300
+                    bg-white dark:bg-slate-900/80
+                    hover:bg-gray-50 dark:hover:bg-slate-800
+                    hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-1
+                    hover:border-blue-300 dark:hover:border-blue-500/50
                     transition-all duration-300
                   "
                 >
                   {item.isNew && (
-                    <span className="absolute top-2 right-2 text-[10px] bg-pink-600 text-white px-2 py-0.5 rounded">
+                    <span className="absolute top-2 right-2 text-[10px] bg-pink-600 text-white px-2 py-0.5 rounded-full font-bold z-10">
                       NEW
                     </span>
                   )}
 
-                  <div className="rounded-xl overflow-hidden bg-gray-50">
-  <img
-    src={item.img}
-    alt={item.name}
-    className="h-28 w-full object-cover
-        transition-transform duration-300
-        group-hover:scale-[1.03]"
-  />
-</div>
+                  <div className="rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-800">
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className="h-28 w-full object-cover dark:brightness-90
+                          transition-transform duration-300
+                          group-hover:scale-[1.05]"
+                    />
+                  </div>
 
 
-                  <h4 className="mt-2 md:mt-3 text-xs md:text-sm font-semibold text-center">
+                  <h4 className="mt-2 md:mt-3 text-xs md:text-sm font-bold text-center text-slate-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {item.name}
                   </h4>
 
-                  <p className="hidden md:block text-[11px] text-gray-400 text-center mt-1">
+                  <p className="hidden md:block text-[11px] text-gray-400 dark:text-gray-500 text-center mt-1">
                     Trusted professionals
                   </p>
 
-                  <p className="hidden md:block text-xs text-blue-600 text-center mt-2 opacity-0 group-hover:opacity-100 transition">
+                  <p className="hidden md:block text-xs text-blue-600 dark:text-blue-400 text-center mt-2 opacity-0 group-hover:opacity-100 transition translate-y-2 group-hover:translate-y-0 duration-300">
                     View details →
                   </p>
                 </div>

@@ -103,3 +103,11 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+export const useApi = () => {
+  const context = React.useContext(ApiContext);
+  if (!context) {
+    throw new Error("useApi must be used inside ApiProvider");
+  }
+  return context;
+};
+

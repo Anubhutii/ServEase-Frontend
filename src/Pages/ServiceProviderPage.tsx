@@ -99,13 +99,13 @@ const ServiceProviderCards = () => {
   }, []);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-white dark:bg-slate-950 transition-colors duration-500">
       {/* HERO */}
-      <div className="md:relative w-full flex justify-center md:justify-end md:h-[50vh] overflow-hidden">
-        
+      <div className="md:relative w-full flex justify-center md:justify-end md:h-[50vh] overflow-hidden bg-white dark:bg-slate-900 transition-colors">
+
         {/* LEFT CONTENT */}
         <div className="z-10 md:absolute left-0 p-3 md:pl-5">
-          <div className="text-3xl sm:pt-10 sm:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight text-center md:text-left md:pl-14 md:pt-5">
+          <div className="text-3xl sm:pt-10 sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight text-center md:text-left md:pl-14 md:pt-5 transition-colors">
             Become a Service Provider
           </div>
 
@@ -113,16 +113,17 @@ const ServiceProviderCards = () => {
             Earn money providing local services in your area and grow your income
             with flexible work opportunities.
           </p> */}
-          <p className="mt-5 text-base lg:pt-2 sm:text-lg text-slate-600 max-w-xl text-center md:text-left md:pl-16">
+          <p className="mt-5 text-base lg:pt-2 sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl text-center md:text-left md:pl-16 transition-colors">
             Offer local services, earn on your terms, and connect with customers nearby. Flexible schedules, steady opportunities, and real income growth—all in your area.
           </p>
 
           <div className="mt-3 flex flex-col lg:pt-5 sm:flex-row gap-3 max-w-xl md:pl-16">
-            <Input placeholder="📍 Enter your location..." />
+            <Input placeholder="📍 Enter your location..." className="dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
             <Button
               type="primary"
               size="large"
               onClick={() => setOpenForm(true)}
+              className="font-bold"
             >
               Join Us
             </Button>
@@ -131,21 +132,21 @@ const ServiceProviderCards = () => {
 
         {/* CENTER UX — REGISTRATION PREVIEW */}
         <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl px-6 py-5 w-70">
-            <p className="text-sm font-semibold text-slate-900 mb-3">
+          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-xl px-6 py-5 w-70 border border-white/20 dark:border-slate-700/50 transition-colors">
+            <p className="text-sm font-bold text-slate-900 dark:text-white mb-3">
               Registration takes only a few steps
             </p>
 
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-green-600 font-medium">
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-bold">
                 ✔ Location
               </div>
-              <div className="text-slate-500">→ Select Service</div>
-              <div className="text-slate-500">→ Upload Documents</div>
-              <div className="text-slate-500">→ Start Accepting Jobs</div>
+              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Select Service</div>
+              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Upload Documents</div>
+              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Start Accepting Jobs</div>
             </div>
 
-            <div className="mt-4 pt-3 border-t text-xs text-slate-600 flex justify-between">
+            <div className="mt-4 pt-3 border-t dark:border-slate-700 text-[10px] text-slate-600 dark:text-slate-400 flex justify-between font-bold">
               <span>🕒 Flexible</span>
               <span>💸 Earn per Job</span>
               <span>🧾 Easy KYC</span>
@@ -154,21 +155,21 @@ const ServiceProviderCards = () => {
         </div>
 
         {/* IMAGE */}
-        <img src={bg} alt="" className="hidden md:block h-full object-cover" />
+        <img src={bg} alt="" className="hidden md:block h-full object-cover dark:opacity-60 transition-opacity" />
 
         {/* BLEND OVERLAY */}
         <div className="absolute inset-0 pointer-events-none hidden md:block">
-          <div className="absolute inset-0 bg-linear-to-r from-white via-white/90 to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-t from-white via-white/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white dark:from-slate-950 via-white/80 dark:via-slate-950/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-white/5 dark:via-slate-950/5 to-transparent" />
         </div>
       </div>
 
       {/* SERVICE CARDS */}
-      <div className="relative w-full px-4">
+      <div className="relative w-full px-4 mt-8">
         <button
           onClick={scrollPrev}
           disabled={!canPrev}
-          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-3 z-10"
+          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900 rounded-full p-4 z-10 dark:text-white disabled:opacity-30 border border-transparent dark:border-slate-700 transition-all hover:scale-110"
         >
           <FaArrowLeft />
         </button>
@@ -176,30 +177,27 @@ const ServiceProviderCards = () => {
         <button
           onClick={scrollNext}
           disabled={!canNext}
-          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-3 z-10"
+          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900 rounded-full p-4 z-10 dark:text-white disabled:opacity-30 border border-transparent dark:border-slate-700 transition-all hover:scale-110"
         >
           <FaArrowRight />
         </button>
 
         <div
           ref={containerRef}
-          className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide"
+          className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide py-4"
         >
           {cards.map((card, i) => (
             <div
               key={i}
-              className={`min-w-[90%] sm:min-w-[60%] md:min-w-[50%] lg:min-w-[30%] rounded-2xl ${card.bg} flex justify-between items-end`}
+              className={`min-w-[90%] sm:min-w-[60%] md:min-w-[50%] lg:min-w-[30%] rounded-[24px] ${card.bg} dark:bg-slate-900/40 dark:border dark:border-slate-800 flex justify-between items-end overflow-hidden group hover:shadow-xl transition-all duration-300`}
             >
               <div className="p-8 max-w-[65%]">
-                <h3 className="font-semibold text-slate-900">{card.title}</h3>
-                <p className="text-sm text-slate-700 mt-1">
+                <h3 className="font-bold text-slate-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{card.title}</h3>
+                <p className="text-sm text-slate-700 dark:text-slate-400 mt-2 font-medium">
                   {card.subtitle}
                 </p>
-                {/* <button className="mt-3 bg-white px-4 py-2 rounded-lg shadow">
-                  {card.btn}
-                </button> */}
               </div>
-              <img src={card.image} className="w-36 h-36 object-cover" />
+              <img src={card.image} className="w-40 h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
           ))}
         </div>
@@ -211,122 +209,123 @@ const ServiceProviderCards = () => {
       />
 
       {/* WHY JOIN SERVEASE */}
-<section className="w-full py-12 mt-10 relative overflow-hidden">
-  {/* background gradient */}
-  <div className="absolute inset-0 -z-10 bg-linear-to-br from-blue-50 via-white to-emerald-50" />
+      <section className="w-full py-16 mt-10 relative overflow-hidden transition-colors">
+        {/* background gradient */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900" />
 
-  <div className="max-w-7xl mx-auto px-4">
-    <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 mb-8">
-      Why Join ServEase?
-    </h2>
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">
+            Why Join ServEase?
+          </h2>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {[
-        {
-          icon: "🧑‍💼",
-          title: "Local Customers Only",
-          desc: "Nearby jobs, no long travel",
-          gradient: "from-blue-200/40 to-blue-100/10",
-        },
-        {
-          icon: "💸",
-          title: "Jitna Kaam, Utni Kamai",
-          desc: "No fixed salary, earn per service",
-          gradient: "from-emerald-200/40 to-emerald-100/10",
-        },
-        {
-          icon: "⏰",
-          title: "Work on Your Schedule",
-          desc: "Accept or reject jobs anytime",
-          gradient: "from-purple-200/40 to-purple-100/10",
-        },
-        {
-          icon: "🛡️",
-          title: "Safe & Verified Leads",
-          desc: "Real customers only",
-          gradient: "from-amber-200/40 to-amber-100/10",
-        },
-      ].map((item) => (
-        <div
-          key={item.title}
-          className="
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: "🧑‍💼",
+                title: "Local Customers Only",
+                desc: "Nearby jobs, no long travel",
+                gradient: "from-blue-200/40 to-blue-100/10 dark:from-blue-600/20 dark:to-blue-600/5",
+              },
+              {
+                icon: "💸",
+                title: "Jitna Kaam, Utni Kamai",
+                desc: "No fixed salary, earn per service",
+                gradient: "from-emerald-200/40 to-emerald-100/10 dark:from-emerald-600/20 dark:to-emerald-600/5",
+              },
+              {
+                icon: "⏰",
+                title: "Work on Your Schedule",
+                desc: "Accept or reject jobs anytime",
+                gradient: "from-purple-200/40 to-purple-100/10 dark:from-purple-600/20 dark:to-purple-600/5",
+              },
+              {
+                icon: "🛡️",
+                title: "Safe & Verified Leads",
+                desc: "Real customers only",
+                gradient: "from-amber-200/40 to-amber-100/10 dark:from-amber-600/20 dark:to-amber-600/5",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="
             group
             relative
-            rounded-2xl
-            p-6
+            rounded-[22px]
+            p-8
             backdrop-blur-xl
-            bg-white/50
-            border border-white/40
-            shadow-lg
+            bg-white/50 dark:bg-slate-900/50
+            border border-white/40 dark:border-slate-800/50
+            shadow-xl dark:shadow-slate-950/50
             transition-all
             duration-300
-            hover:-translate-y-1
-            hover:shadow-xl
+            hover:-translate-y-2
           "
-        >
-          {/* gradient overlay */}
-          <div
-            className={`absolute inset-0 rounded-2xl bg-linear-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition`}
-          />
+              >
+                {/* gradient overlay */}
+                <div
+                  className={`absolute inset-0 rounded-[22px] bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition duration-500`}
+                />
 
-          <div className="relative">
-            <div className="text-3xl mb-3">{item.icon}</div>
-            <h3 className="font-semibold text-slate-900">
-              {item.title}
-            </h3>
-            <p className="text-sm text-slate-600 mt-1">
-              {item.desc}
-            </p>
+                <div className="relative z-10 text-center sm:text-left">
+                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform">{item.icon}</div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
 
       {/* EARNINGS PREVIEW */}
-<section className="w-full py-10">
-  <div className="max-w-5xl mx-auto px-4">
-    <h2 className="text-xl sm:text-2xl font-bold text-center text-slate-900 mb-6">
-      How Much Can You Earn?
-    </h2>
+      <section className="w-full py-16 bg-white dark:bg-slate-950 transition-colors">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 dark:text-white mb-10">
+            How Much Can You Earn?
+          </h2>
 
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {[
-        { service: "🧹 Cleaning", earning: "₹800–1.5k / day*" },
-        { service: "🔧 Plumbing", earning: "₹1.2k–2k / day*" },
-        { service: "❄️ AC Repair", earning: "₹1.5k+ / day*" },
-        { service: "👨‍🍳 Chef", earning: "₹1k+ / day*" },
-      ].map((item) => (
-        <div
-          key={item.service}
-          className="
-            bg-white
-            rounded-xl
-            border border-slate-200
-            px-3 py-4
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { service: "🧹 Cleaning", earning: "₹800–1.5k / day*" },
+              { service: "🔧 Plumbing", earning: "₹1.2k–2k / day*" },
+              { service: "❄️ AC Repair", earning: "₹1.5k+ / day*" },
+              { service: "👨‍🍳 Chef", earning: "₹1k+ / day*" },
+            ].map((item) => (
+              <div
+                key={item.service}
+                className="
+            bg-white dark:bg-slate-900
+            rounded-2xl
+            border border-slate-200 dark:border-slate-800
+            px-4 py-8
             text-center
-            hover:shadow-sm
-            transition
+            hover:shadow-xl dark:hover:shadow-slate-900/50
+            hover:-translate-y-1
+            transition-all
+            duration-300
           "
-        >
-          <p className="text-sm font-medium text-slate-900">
-            {item.service}
-          </p>
-          <p className="text-xs font-semibold text-green-600 mt-1">
-            {item.earning}
+              >
+                <p className="text-base font-bold text-slate-900 dark:text-gray-200">
+                  {item.service}
+                </p>
+                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+                  {item.earning}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-center text-slate-500 dark:text-slate-500 mt-8 italic font-medium">
+            *Earnings depend on number of services completed
           </p>
         </div>
-      ))}
-    </div>
-
-    <p className="text-[11px] text-center text-slate-500 mt-3">
-      *Earnings depend on number of services completed
-    </p>
-  </div>
       </section>
-      
+
       <Footer />
 
     </div>

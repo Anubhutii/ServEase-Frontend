@@ -1,17 +1,22 @@
 import { createContext, useContext, useState } from "react";
 
 type CartItem = {
-  id: number;
+  id: string;
   title: string;
   price: number;
   quantity: number;
+  bookingDay?: string;
+  description?: string;
 };
 
 type CartContextType = {
   cart: CartItem[];
   addToCart: (item: any) => void;
-  increaseQty: (id: number) => void;
-  decreaseQty: (id: number) => void;
+  increaseQty: (id: string) => void;
+  decreaseQty: (id: string) => void;
+  updateBookingDay: (id: string, day: string) => void;
+  updateDescription: (id: string, desc: string) => void;
+  clearCart: () => void;
   total: number;
 };
 
@@ -26,9 +31,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const existing = prev.find((p) => p.id === item.id);
 
       if (existing) {
-        return prev.map((p) =>
-          p.id === item.id ? { ...p, quantity: p.quantity + 1 } : p
-        );
+        return prev;
       }
 
       return [...prev, { ...item, quantity: 1 }];
@@ -36,7 +39,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ✅ Increase qty
-  const increaseQty = (id: number) => {
+  const increaseQty = (id: string) => {
     setCart((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -45,7 +48,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // ✅ Decrease qty
-  const decreaseQty = (id: number) => {
+  const decreaseQty = (id: string) => {
     setCart((prev) =>
       prev
         .map((item) =>
@@ -57,15 +60,32 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  // ✅ Update booking day
+  const updateBookingDay = (id: string, bookingDay: string) => {
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, bookingDay } : item))
+    );
+  };
+
+  // ✅ Update description
+  const updateDescription = (id: string, description: string) => {
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, description } : item))
+    );
+  };
+
   // ✅ Total auto calculated
   const total = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
+  // ✅ Clear cart
+  const clearCart = () => setCart([]);
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, increaseQty, decreaseQty, total }}
+      value={{ cart, addToCart, increaseQty, decreaseQty, updateBookingDay, updateDescription, clearCart, total }}
     >
       {children}
     </CartContext.Provider>

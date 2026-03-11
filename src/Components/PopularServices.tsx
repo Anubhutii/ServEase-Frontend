@@ -26,21 +26,21 @@ export default function PopularServices() {
   const mobileServices = services.slice(0, 4);
 
   return (
-    <section className="pt-20 pb-12 px-4 md:px-16 bg-linear-to-br from-[#dbeafe] via-[#f8fafc] to-[#fde2e4]">
+    <section className="pt-20 pb-12 px-4 md:px-16 bg-linear-to-br from-[#dbeafe] via-[#f8fafc] to-[#fde2e4] dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 transition-colors duration-500">
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl md:text-4xl font-bold text-slate-900">
+          <h2 className="text-2xl md:text-4xl font-bold text-slate-900 dark:text-white">
             Popular Services
           </h2>
-          <p className="text-slate-600 mt-1 text-lg">
+          <p className="text-slate-600 dark:text-slate-300 mt-1 text-lg">
             Choose what you need — trusted professionals nearby
           </p>
 
-          <p className="text-slate-500 mt-1 text-md">
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-md">
             Book in minutes - Serving verified experts in your area{" "}
-            <span className='text-blue-700 text-sm'>
+            <span className='text-blue-700 dark:text-blue-400 text-sm'>
               🛡️ Verified 📍 Local 🔒 Secure ⚡ Fast Service
             </span>
           </p>
@@ -49,7 +49,7 @@ export default function PopularServices() {
         {/* Desktop View All */}
         <Link
           to="/services"
-          className="hidden sm:block text-xs font-medium text-blue-600 hover:underline ml-auto"
+          className="hidden sm:block text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline ml-auto"
         >
           View All →
         </Link>
@@ -74,6 +74,7 @@ export default function PopularServices() {
           className="
             block
             text-blue-600
+            dark:text-blue-400
             text-sm
             font-medium
             py-2
@@ -97,25 +98,26 @@ function ServiceCard({ service }: { service: any }) {
         flex items-center justify-between
         rounded-2xl
         p-6
-        border border-slate-200
+        border border-slate-200 dark:border-slate-800
         bg-linear-to-br from-white via-slate-50 to-slate-100
+        dark:from-slate-800 dark:via-slate-900 dark:to-slate-800
         shadow-[0_10px_30px_rgba(0,0,0,0.08)]
         hover:shadow-[0_18px_50px_rgba(0,0,0,0.14)]
-        transition
+        transition-all duration-300
       "
     >
       <div className="pr-20">
         {service.featured && (
-          <span className="inline-flex items-center gap-1 mb-2 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+          <span className="inline-flex items-center gap-1 mb-2 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
             ⭐ Recommended
           </span>
         )}
 
-        <h3 className="text-base md:text-lg font-semibold text-slate-900">
+        <h3 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
           {service.title}
         </h3>
 
-        <p className="text-xs text-slate-600 mt-1">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
           {service.bookings} bookings nearby
         </p>
 
@@ -147,6 +149,7 @@ function ServiceCard({ service }: { service: any }) {
           w-20 h-28
           object-contain
           drop-shadow-lg
+          dark:brightness-90
         "
       />
     </div>
@@ -164,11 +167,11 @@ function DesktopServiceCard({ service }: { service: any }) {
         rounded-2xl
         p-5
         h-60
-        bg-white
-        border border-slate-200
+        bg-white dark:bg-slate-900/80
+        border border-slate-200 dark:border-slate-800
         shadow-[0_8px_24px_rgba(0,0,0,0.08)]
         hover:shadow-[0_14px_40px_rgba(0,0,0,0.14)]
-        transition
+        transition-all duration-300
       "
     >
       <div className="relative">
@@ -188,15 +191,15 @@ function DesktopServiceCard({ service }: { service: any }) {
         <img
           src={service.img}
           alt={service.title}
-          className="w-32 h-32 object-contain mb-3"
+          className="w-32 h-32 object-contain mb-3 dark:brightness-90"
         />
       </div>
 
-      <h3 className="text-sm font-semibold text-slate-900">
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
         {service.title}
       </h3>
 
-      <p className="text-[11px] text-slate-600 mt-0.5">
+      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
         {service.bookings} bookings nearby
       </p>
 

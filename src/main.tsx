@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, theme as antTheme } from 'antd'
 import './index.css'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
@@ -9,6 +9,22 @@ import { AuthProvider } from './Context/AuthContext.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { CartProvider } from "./Context/CartContext.tsx";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider, useTheme } from './Context/ThemeContext.tsx';
+import { RoleProvider } from './Context/RoleContext.tsx';
+
+const AppConfigProvider = ({ children }: { children: React.ReactNode }) => {
+  const { theme: appTheme } = useTheme();
+  return (
+    <ConfigProvider
+      theme={{
+        ...theme,
+        algorithm: appTheme === 'dark' ? antTheme.darkAlgorithm : antTheme.defaultAlgorithm
+      }}
+    >
+      {children}
+    </ConfigProvider>
+  );
+};
 
 const queryClient = new QueryClient();
 
@@ -41,17 +57,21 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <ConfigProvider theme={theme}>
-          <ApiProvider>
-            <AuthProvider>
-              <CartProvider>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </CartProvider>
-            </AuthProvider>
-          </ApiProvider>
-        </ConfigProvider>
+        <ThemeProvider>
+          <AppConfigProvider>
+            <ApiProvider>
+              <AuthProvider>
+                <RoleProvider>
+                  <CartProvider>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </CartProvider>
+                </RoleProvider>
+              </AuthProvider>
+            </ApiProvider>
+          </AppConfigProvider>
+        </ThemeProvider>
       </GoogleOAuthProvider>
     </QueryClientProvider>
   </StrictMode>

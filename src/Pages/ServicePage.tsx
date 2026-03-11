@@ -2,10 +2,15 @@ import { useState } from "react";
 import SPLeftSidebar from "../Components/SPLeftSidebar";
 import SPMainContent from "../Components/SPMainContent";
 import SPRightSidebar from "../Components/SPRightSidebar";
-import { HiMenu, HiX } from "react-icons/hi";
+import { HiX } from "react-icons/hi";
 
 const ServicePage: React.FC = () => {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    category: "",
+    service: "",
+    search: ""
+  });
 
   return (
     <div
@@ -20,7 +25,7 @@ const ServicePage: React.FC = () => {
     >
       {/* LEFT SIDEBAR – DESKTOP */}
       <div className="hidden lg:block">
-        <SPLeftSidebar />
+        <SPLeftSidebar filters={filters} setFilters={setFilters} />
       </div>
 
       {/* LEFT SIDEBAR – MOBILE DRAWER */}
@@ -33,23 +38,23 @@ const ServicePage: React.FC = () => {
           />
 
           {/* DRAWER */}
-          <div className="absolute left-0 top-0 h-full w-[85%] max-w-sm bg-white p-4 overflow-y-auto shadow-xl">
+          <div className="absolute left-0 top-0 h-full w-[85%] max-w-sm bg-white dark:bg-slate-900 p-4 overflow-y-auto shadow-xl transition-colors duration-500">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-lg">Filters</h3>
-              <button onClick={() => setMobileFilterOpen(false)}>
+              <h3 className="font-semibold text-lg text-slate-800 dark:text-white">Filters</h3>
+              <button onClick={() => setMobileFilterOpen(false)} className="text-slate-500 hover:text-red-500 dark:text-slate-400">
                 <HiX size={22} />
               </button>
             </div>
 
-            <SPLeftSidebar />
+            <SPLeftSidebar filters={filters} setFilters={setFilters} />
           </div>
         </div>
       )}
 
       {/* MAIN CONTENT */}
-          <div className="space-y-4">
-              
-        <SPMainContent onOpenFilters={() => setMobileFilterOpen(true)} />
+      <div className="space-y-4">
+
+        <SPMainContent onOpenFilters={() => setMobileFilterOpen(true)} filters={filters} />
 
       </div>
 
