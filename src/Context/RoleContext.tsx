@@ -12,7 +12,7 @@ type RoleContextType = {
 const RoleContext = createContext<RoleContextType | null>(null);
 
 export const RoleProvider = ({ children }: { children: React.ReactNode }) => {
-    const { user, isLoggedIn } = useAuth();
+    const { user, isLoggedIn, loading } = useAuth();
 
     // Initialize with 'user' or whatever is in localStorage
     const [activeRole, setActiveRole] = useState<Role>(() => {
@@ -23,12 +23,13 @@ export const RoleProvider = ({ children }: { children: React.ReactNode }) => {
     const [availableRoles, setAvailableRoles] = useState<Role[]>(["user"]);
 
     useEffect(() => {
+        if (loading) return;
         if (isLoggedIn && user) {
             // In a real app, you would fetch the available roles from the backend
             // `GET /api/roles/available`
             // For now, we'll derive it from the user object if available, or just mock it.
             // E.g. we might have user.user_roles or user.role
-            const roles = user.user_roles || (user.role ? [user.role] : ["user", "provider"]);
+            const roles = user.user_roles || (user.role ? [user.role] : ["user"]);
             setAvailableRoles(roles as Role[]);
 
             // If active role is not in available roles, reset it
@@ -36,7 +37,7 @@ export const RoleProvider = ({ children }: { children: React.ReactNode }) => {
                 setActiveRole(roles[0] as Role);
                 localStorage.setItem("activeRole", roles[0]);
             }
-        } else {
+        } else if (!isLoggedIn) {
             setAvailableRoles(["user"]);
             setActiveRole("user");
             localStorage.removeItem("activeRole");

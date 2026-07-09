@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useAuth } from "../Context/AuthContext";
 import {
   Modal,
   Button,
@@ -43,16 +44,21 @@ const ServiceProviderForm = ({
 }) => {
   const [form] = Form.useForm();
   const [step, setStep] = useState(0);
+  const { login } = useAuth();
 
   const selectedCategory = Form.useWatch("category", form);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await axios.post("http://localhost:5000/api/provider/create-provider", formData);
+      const token = localStorage.getItem("token");
+      const response = await axios.post("http://localhost:5000/api/provider/create-provider", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       message.success("Application submitted successfully!");
+      if (data.user) login(data.user);
       form.resetFields();
       setStep(0);
       onClose();

@@ -1,16 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import SPLeftSidebar from "../Components/SPLeftSidebar";
 import SPMainContent from "../Components/SPMainContent";
 import SPRightSidebar from "../Components/SPRightSidebar";
 import { HiX } from "react-icons/hi";
 
 const ServicePage: React.FC = () => {
+  const { state } = useLocation();
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     category: "",
     service: "",
-    search: ""
+    search: (state as any)?.search || "",
   });
+
+  useEffect(() => {
+    if ((state as any)?.search) {
+      setFilters(f => ({ ...f, search: (state as any).search }));
+    }
+  }, [state]);
 
   return (
     <div

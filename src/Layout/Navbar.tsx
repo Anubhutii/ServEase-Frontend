@@ -6,7 +6,7 @@ import type { MenuProps } from "antd";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaBars } from "react-icons/fa";
 import { FiMoon, FiSun, FiSearch } from "react-icons/fi";
-import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined, SwapOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../assets/logo.png";
@@ -46,34 +46,13 @@ const ThemeToggle = ({ theme, onClick, className }: { theme: string, onClick: ()
 };
 
 const CustomSearchBar = ({ value, onChange, onSearch, theme }: { value: string, onChange: (v: string) => void, onSearch: (v: string) => void, theme: string }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-
-  const suggestions = [
-    "Plumber",
-    "Cook",
-    "Electrician",
-    "House Cleaning",
-    "Carpentry",
-    "AC Repair"
-  ];
-
-  const showSuggestions = isHovered || isFocused;
-  const filteredSuggestions = suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()));
-
   return (
-    <div
-      className="relative flex-1 max-w-xl w-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className={`relative flex items-center w-full h-[46px] rounded-[16px] transition-all duration-300 z-50 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 border' : 'bg-[#fff] shadow-sm'}`}>
+    <div className="relative flex-1 max-w-xl w-full">
+      <div className={`relative flex items-center w-full h-[46px] rounded-[16px] transition-all duration-300 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 border' : 'bg-[#fff] shadow-sm'}`}>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
           onKeyDown={(e) => e.key === 'Enter' && onSearch(value)}
           placeholder="Search services..."
           className={`w-full h-full pl-5 pr-2 bg-transparent outline-none border-none font-medium text-[14px] rounded-l-[16px] ${theme === 'dark' ? 'text-white placeholder-gray-500' : 'text-gray-700 placeholder-gray-400'}`}
@@ -85,35 +64,6 @@ const CustomSearchBar = ({ value, onChange, onSearch, theme }: { value: string, 
           <FiSearch className={theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} size={16} strokeWidth={2.5} />
         </div>
       </div>
-
-      {showSuggestions && (
-        <div className={`absolute top-[calc(100%+8px)] left-0 w-full rounded-[16px] shadow-xl overflow-hidden z-40 transition-all duration-300 ${theme === 'dark' ? 'bg-slate-800 border border-slate-700' : 'bg-white border border-gray-100'}`}>
-          <div className="py-2 max-h-[300px] overflow-y-auto">
-            {filteredSuggestions.length > 0 ? (
-              filteredSuggestions.map((suggestion, index) => (
-                <div
-                  key={index}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    onChange(suggestion);
-                    onSearch(suggestion);
-                    setIsHovered(false);
-                    setIsFocused(false);
-                  }}
-                  className={`flex items-center px-5 py-2 cursor-pointer font-medium text-[14px] transition-colors ${theme === 'dark' ? 'hover:bg-slate-700 text-gray-400 hover:text-gray-200' : 'hover:bg-black/5 text-gray-500 hover:text-gray-800'}`}
-                >
-                  <FiSearch className={`mr-3 flex-shrink-0 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} size={14} strokeWidth={2.5} />
-                  <span className="truncate">{suggestion}</span>
-                </div>
-              ))
-            ) : (
-              <div className={`px-5 py-3 text-sm font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                No services found
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -246,7 +196,7 @@ const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   const onSearch = (value: string) => {
-    console.log("Search:", value);
+    if (value.trim()) nav('/service', { state: { search: value.trim() } });
   };
 
   const profileMenu: MenuProps["items"] = [
@@ -263,11 +213,26 @@ const Navbar: React.FC = () => {
     {
       type: "divider",
     },
-    {
+    ...(activeRole !== "provider" ? [{
       key: "dashboard",
       label: "Dashboard",
-      onClick: () => nav(activeRole === "provider" ? "/provider-dashboard" : "/user-dashboard"),
-    },
+      onClick: () => nav("/user-dashboard"),
+    }] : []),
+    ...(availableRoles.includes("provider") ? [{
+      key: "switch-role",
+      label: activeRole === "provider" ? "Switch to User" : "Switch to Provider",
+      icon: <SwapOutlined />,
+      onClick: () => {
+        const next = activeRole === "provider" ? "user" : "provider";
+        switchRole(next);
+        nav(next === "provider" ? "/provider-dashboard" : "/user-dashboard");
+      },
+    }] : []),
+    ...(!availableRoles.includes("provider") ? [{
+      key: "become-provider",
+      label: "Become Provider",
+      onClick: () => nav("/become-provider"),
+    }] : []),
     {
       type: "divider",
     },
@@ -306,21 +271,22 @@ const Navbar: React.FC = () => {
         </motion.div>
 
 
-        {/* CENTER: Location + Search (Desktop only) */}
-        <div className="hidden md:flex items-center gap-4 flex-1 max-w-2xl mx-8">
-          <CustomLocationButton
-            location={selectedLocation}
-            onClick={() => setShowLocation(true)}
-            theme={theme}
-          />
-
-          <CustomSearchBar
-            value={searchValue}
-            onChange={setSearchValue}
-            onSearch={onSearch}
-            theme={theme}
-          />
-        </div>
+        {/* CENTER: Location + Search (Desktop only, hidden in provider mode) */}
+        {activeRole !== "provider" && (
+          <div className="hidden md:flex items-center gap-4 flex-1 max-w-2xl mx-8">
+            <CustomLocationButton
+              location={selectedLocation}
+              onClick={() => setShowLocation(true)}
+              theme={theme}
+            />
+            <CustomSearchBar
+              value={searchValue}
+              onChange={setSearchValue}
+              onSearch={onSearch}
+              theme={theme}
+            />
+          </div>
+        )}
 
         {/* RIGHT: Desktop Buttons */}
         <div className="hidden md:flex items-center gap-3">
@@ -346,7 +312,7 @@ const Navbar: React.FC = () => {
             </div>
           )}
 
-          {!isLoggedIn || !availableRoles.includes("provider") ? (
+          {!isLoggedIn && (
             <Button
               type="primary"
               size="large"
@@ -354,43 +320,20 @@ const Navbar: React.FC = () => {
             >
               Become Provider
             </Button>
-          ) : (
-            <div className={`p-1 flex items-center rounded-lg border ${theme === 'dark' ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-gray-50'}`}>
-              <Button
-                type={activeRole === "user" ? "primary" : "text"}
-                size="middle"
-                onClick={() => switchRole("user")}
-                className={activeRole === "user" ? "" : (theme === 'dark' ? "text-gray-400" : "text-gray-500")}
-              >
-                User
-              </Button>
-              <Button
-                type={activeRole === "provider" ? "primary" : "text"}
-                size="middle"
-                onClick={() => switchRole("provider")}
-                className={activeRole === "provider" ? "" : (theme === 'dark' ? "text-gray-400" : "text-gray-500")}
-              >
-                Provider
-              </Button>
-            </div>
-          )}
-
-          {isLoggedIn && activeRole === "user" && (
-            <Button type="primary" size="large" className="bg-gradient-to-r from-purple-500 to-indigo-500 border-none hover:opacity-90 transition-opacity" onClick={() => nav("/post-job")}>
-              Post a Job
-            </Button>
           )}
         </div>
 
         {/* MOBILE: Location | Login | Menu */}
         <div className="md:hidden flex items-center gap-2">
-          {/* Location */}
-          <CustomLocationButton
-            location={selectedLocation}
-            onClick={() => setShowLocation(true)}
-            theme={theme}
-            isMobile
-          />
+          {/* Location (hidden in provider mode) */}
+          {activeRole !== "provider" && (
+            <CustomLocationButton
+              location={selectedLocation}
+              onClick={() => setShowLocation(true)}
+              theme={theme}
+              isMobile
+            />
+          )}
 
           {/* Login / Avatar */}
           {!isLoggedIn ? (
@@ -495,14 +438,13 @@ const Navbar: React.FC = () => {
             <Button
               block
               type="primary"
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 border-none"
               onClick={() => {
                 nav("/post-job");
                 setMenuOpen(false);
               }}
               size="large"
             >
-              Post a Job
+              Post a Request
             </Button>
           )}
         </Space>

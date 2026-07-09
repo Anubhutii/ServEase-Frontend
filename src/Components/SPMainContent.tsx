@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import MiddleImg from "../assets/SPimg.png";
 import { HiMenu } from "react-icons/hi";
 import { ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -287,21 +286,12 @@ const ProviderCard = ({ data }: any) => {
 
 
 const SPMainContent: React.FC<Props> = ({ onOpenFilters, filters }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [openCartPreview, setOpenCartPreview] = useState(false);
 
   const { cart, total } = useCart();
   const navigate = useNavigate();
 
   const itemCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-
-  // Rotating header
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % services.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   // React Query fetching providers dynamically
   const { data: searchData, isLoading, isError } = useQuery({
@@ -334,12 +324,7 @@ const SPMainContent: React.FC<Props> = ({ onOpenFilters, filters }) => {
   const providersList = searchData?.providers || [];
 
   return (
-    <div className="space-y-5 h-[calc(100vh-80px)] overflow-y-auto no-scrollbar px-1 pb-10 transition-colors duration-500">
-
-      {/* HERO */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden">
-        <img src={MiddleImg} alt="Service" className="w-full h-52 sm:h-64 md:h-80 object-cover dark:brightness-90" />
-      </div>
+    <div className="space-y-5 px-1 pb-10 transition-colors duration-500">
 
       {/* FILTER + CART ICON (MOBILE) */}
       <div className="lg:hidden flex justify-end gap-3 items-center">
@@ -364,22 +349,11 @@ const SPMainContent: React.FC<Props> = ({ onOpenFilters, filters }) => {
         </button>
       </div>
 
-      {/* HEADER */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-800">
-        <h1 className="text-xl md:text-2xl font-semibold text-slate-800 dark:text-white">{services[currentIndex].title}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          ⭐ {services[currentIndex].rating} · {services[currentIndex].bookings} bookings near you
-        </p>
-        <p className="text-lg font-semibold mt-1 text-emerald-600 dark:text-emerald-400">
-          Starting {services[currentIndex].price}
-        </p>
-      </div>
-
       {/* PACKAGES / PROVIDERS LIST */}
       <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-800">
         <h2 className="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-white">Available Professionals Near You</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-h-[70vh] overflow-y-auto pr-1">
           {isLoading ? (
             <div className="py-10 text-center text-gray-500 dark:text-gray-400">Loading verified professionals...</div>
           ) : isError ? (

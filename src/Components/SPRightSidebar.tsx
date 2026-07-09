@@ -97,6 +97,17 @@ const SPRightSidebar: React.FC = () => {
         </div>
       )}
 
+      
+      {/* POST A JOB CTA */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => navigate("/post-job")}
+          className="px-5 py-2.5 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow transition-all active:scale-95"
+        >
+          Post a Job
+        </button>
+      </div>
+
       {/* 2. YOUR SERVICES */}
       <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
         <h3 className="font-bold text-[16px] text-slate-800 dark:text-white mb-4">Your services</h3>

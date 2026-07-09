@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 type AuthContextType = {
   isLoggedIn: boolean;
   user: any;
+  loading: boolean;
   login: (userData?: any) => void;
   logout: () => void;
 };
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else if (token) {
       setIsLoggedIn(true);
     }
+    setLoading(false);
   }, []);
 
   const login = (userData?: any) => {
@@ -47,7 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

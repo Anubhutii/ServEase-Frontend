@@ -21,7 +21,7 @@ const BidReviewList: React.FC = () => {
         try {
             // First get job details
             // If we don't have an endpoint for single job, we might need one or get it from bids response
-            const res = await axios.get(`/api/jobs/${jobId}/bids`);
+            const res = await axios.get(`/api/bids/job/${jobId}`);
             setBids(res.data.bids || []);
             if (res.data.bids && res.data.bids.length > 0) {
                 setJob(res.data.bids[0].job);
@@ -39,7 +39,7 @@ const BidReviewList: React.FC = () => {
 
     const handleAction = async (bidId: string, action: 'accept' | 'reject') => {
         try {
-            await axios.put(`/api/bids/${bidId}/status`, { status: action === 'accept' ? 'accepted' : 'rejected' });
+            await axios.put(`/api/bids/${bidId}`, { status: action === 'accept' ? 'accepted' : 'rejected' });
             message.success(`Bid ${action}ed successfully`);
             fetchBids();
         } catch (error: any) {
@@ -88,9 +88,9 @@ const BidReviewList: React.FC = () => {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <Title level={4} className={textColor}>
-                                        {bid.provider?.name || "Service Provider"}
+                                        {bid.provider ? `${bid.provider.firstName} ${bid.provider.lastName}` : "Service Provider"}
                                     </Title>
-                                    <Text className={mutedText}>{bid.provider?.email}</Text>
+                                    <Text className={mutedText}>{new Date(bid.createdAt).toLocaleString()}</Text>
 
                                     <div className="mt-4">
                                         <p className={textColor}><strong>Proposed Price:</strong> ₹{bid.proposed_price}</p>

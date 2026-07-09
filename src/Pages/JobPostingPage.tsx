@@ -19,8 +19,8 @@ const JobPostingPage: React.FC = () => {
     const onFinish = async (values: any) => {
         setLoading(true);
         try {
+            const token = localStorage.getItem('token');
             const payload = {
-                user: user?.id || user?._id,
                 title: values.title,
                 description: values.description,
                 category: values.category,
@@ -36,7 +36,7 @@ const JobPostingPage: React.FC = () => {
                 deadline: values.deadline,
             };
 
-            await axios.post('/api/jobs', payload);
+            await axios.post('/api/jobs', payload, { headers: { Authorization: `Bearer ${token}` } });
             message.success('Job posted successfully!');
             navigate('/user-dashboard'); // Navigate to user dashboard
         } catch (error: any) {
@@ -52,7 +52,7 @@ const JobPostingPage: React.FC = () => {
             <Card
                 className={`w-full max-w-2xl shadow-xl ${isDark ? "bg-slate-800 border-slate-700" : "bg-white"}`}
             >
-                <h2 className={`text-2xl font-bold mb-6 text-center ${isDark ? "text-white" : "text-gray-800"}`}>Post a Job Requirement</h2>
+                <h2 className={`text-2xl font-bold mb-6 text-center ${isDark ? "text-white" : "text-gray-800"}`}>Post a Request</h2>
 
                 <Form
                     layout="vertical"
@@ -132,7 +132,7 @@ const JobPostingPage: React.FC = () => {
                             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 border-none"
                             loading={loading}
                         >
-                            Post Job
+                            Post Request
                         </Button>
                     </Form.Item>
                 </Form>

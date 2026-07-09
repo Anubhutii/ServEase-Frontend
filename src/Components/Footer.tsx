@@ -1,140 +1,117 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { HiChevronDown } from "react-icons/hi";
 import {
   FaFacebookF,
   FaInstagram,
-  FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import { MdEmail, MdPhone } from "react-icons/md";
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
-  const [open, setOpen] = useState<string | null>(null);
-
-  const toggle = (key: string) => {
-    setOpen(open === key ? null : key);
-  };
 
   const LinkItem = ({ label, path }: { label: string; path?: string }) => (
     <li
       onClick={() => path && navigate(path)}
-      className="cursor-pointer hover:text-blue-600 transition"
+      className="cursor-pointer transition hover:text-blue-500 dark:hover:text-blue-400"
     >
       {label}
     </li>
   );
 
-  const Section = ({
-    title,
-    sectionKey,
-    children,
-  }: {
-    title: string;
-    sectionKey: string;
-    children: React.ReactNode;
-  }) => (
-    <div>
-      <button
-        onClick={() => toggle(sectionKey)}
-        className="w-full flex justify-between items-center md:pointer-events-none"
-      >
-        <h4 className="font-semibold text-gray-900 dark:text-white">{title}</h4>
-        <HiChevronDown
-          className={`md:hidden dark:text-gray-400 transition ${open === sectionKey ? "rotate-180" : ""
-            }`}
-        />
-      </button>
-
-      <ul
-        className={`mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-400 ${open === sectionKey ? "block" : "hidden"
-          } md:block`}
-      >
-        {children}
-      </ul>
-    </div>
-  );
-
   return (
-    <footer className="bg-white dark:bg-slate-950 transition-colors duration-500">
-      {/* 👇 ALMOST FULL WIDTH */}
-      <div className="w-full px-4 md:px-6 lg:px-8">
-        {/* CARD */}
-        <div className="bg-white dark:bg-slate-900 rounded-md shadow-lg dark:shadow-slate-900/50 p-6 md:p-8 border border-transparent dark:border-slate-800">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {/* BRAND */}
-            <div className="md:col-span-1">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                ServEase
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                Reliable home services by verified local professionals.
-                Simple booking. Transparent pricing.
-              </p>
+    <footer className="bg-gray-100 dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#020617] text-gray-700 dark:text-gray-300 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
 
-              {/* SOCIAL */}
-              <div className="flex gap-3 mt-4 text-gray-500 dark:text-gray-400">
-                <FaFacebookF className="hover:text-blue-600 cursor-pointer transition-colors" />
-                <FaInstagram className="hover:text-pink-500 cursor-pointer transition-colors" />
-                <FaTwitter className="hover:text-blue-400 cursor-pointer transition-colors" />
-                <FaYoutube className="hover:text-red-500 cursor-pointer transition-colors" />
-              </div>
-            </div>
+        {/* GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
 
-            {/* QUICK LINKS */}
-            <Section title="Quick Links" sectionKey="quick">
-              <LinkItem label="All Services" path="/services" />
-              <LinkItem label="Electrician" path="/service/electrician" />
-              <LinkItem label="Plumber" path="/service/plumber" />
-              <LinkItem label="Carpenter" path="/service/carpenter" />
-              <LinkItem label="Cleaning" path="/service/cleaning" />
-              <LinkItem label="Salon at Home" path="/service/salon" />
-            </Section>
+          {/* LEFT */}
+          <div>
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 md:mb-3">
+              Reliable Services, Right at Your Doorstep.
+            </h2>
+            <h5 className="text-base sm:text-sm md:text-sm font-semibold text-gray-900 dark:text-white mb-2 md:mb-3">
+              Your Everyday Problems, Solved Instantly.
+            </h5>
 
-            {/* CUSTOMER SERVICE */}
-            <Section title="Customer Service" sectionKey="support">
-              <LinkItem label="Contact Us" />
-              <LinkItem label="FAQs" />
-            </Section>
-
-            {/* COMPANY */}
-            <Section title="Company" sectionKey="company">
-              <LinkItem
-                label="Become a Provider"
-                path="/become-provider"
-              />
-            </Section>
-
-            {/* NEWSLETTER */}
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                Stay Connected
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                Subscribe for updates & offers
-              </p>
-
-              <div className="flex items-center border dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-800">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="flex-1 px-3 py-2 text-sm outline-none bg-transparent dark:text-white"
-                />
-                <button className="bg-blue-500 text-white px-3 py-2 hover:bg-blue-600 transition-colors">
-                  →
-                </button>
-              </div>
-
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
+            <div className="space-y-1 md:space-y-2 text-[11px] sm:text-xs md:text-sm">
+              <div className="flex items-center gap-2">
+                <MdEmail className="text-blue-500 dark:text-blue-400" />
                 support@servease.com
-              </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MdPhone className="text-blue-500 dark:text-blue-400" />
+                1800-123-456
+              </div>
             </div>
           </div>
 
-          {/* BOTTOM */}
-          <div className="border-t dark:border-slate-800 mt-8 pt-4 text-center text-xs text-gray-500 dark:text-gray-500">
-            © {new Date().getFullYear()} ServEase · Privacy Policy · Terms of
-            Service
+          {/* COMPANY */}
+          <div className="hidden sm:block">
+            <h4 className="text-sm font-medium mb-2 text-gray-900 dark:text-white">
+              Company
+            </h4>
+            <ul className="space-y-1 text-xs sm:text-sm">
+              <LinkItem label="Features" />
+              <LinkItem label="About Us" />
+              <LinkItem label="Contact" />
+              <LinkItem label="Pricing" />
+            </ul>
+          </div>
+
+          {/* HELP */}
+          <div className="hidden sm:block">
+            <h4 className="text-sm font-medium mb-2 text-gray-900 dark:text-white">
+              Help
+            </h4>
+            <ul className="space-y-1 text-xs sm:text-sm">
+              <LinkItem label="FAQ" />
+              <LinkItem label="Help Center" />
+              <LinkItem label="Support" />
+            </ul>
+          </div>
+
+          {/* NEWSLETTER */}
+          <div>
+            <h4 className="text-xs sm:text-sm font-medium mb-2 text-gray-900 dark:text-white">
+              Get In Touch
+            </h4>
+
+            <div className="flex w-72 border border-gray-300 dark:border-gray-700 rounded-full overflow-hidden bg-white dark:bg-white/5 backdrop-blur-md">
+              <input
+                type="email"
+                placeholder="Email"
+                className="flex-1 px-2 sm:px-3 py-1 text-[11px] sm:text-sm bg-transparent outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              />
+              <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-4 py-1 text-[11px] sm:text-sm transition">
+                Subscribe
+              </button>
+            </div>
+
+            {/* SOCIAL */}
+            <div className="flex gap-3 mt-2 md:mt-3 text-gray-500 dark:text-gray-400 text-sm">
+              <FaFacebookF className="hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition" />
+              <FaInstagram className="hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition" />
+              <FaYoutube className="hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition" />
+            </div>
+          </div>
+        </div>
+
+        {/* DIVIDER */}
+        <div className="border-t border-gray-300 dark:border-gray-800 my-4 md:my-5"></div>
+
+        {/* BOTTOM */}
+        <div className="flex flex-col sm:flex-row justify-between items-center text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 gap-2">
+          <p>© {new Date().getFullYear()} ServEase</p>
+
+          <div className="flex gap-3 sm:gap-4">
+            <span className="hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition">
+              Privacy
+            </span>
+            <span className="hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer transition">
+              Terms
+            </span>
           </div>
         </div>
       </div>

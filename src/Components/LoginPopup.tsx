@@ -72,8 +72,9 @@ const LoginPopup = ({
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
       const res = await login(values);
-      console.log("Login success:", res);
-      authLogin();
+      const { token, user } = res;
+      if (token) localStorage.setItem("token", token);
+      authLogin(user);
       message.success("Login successful!");
       loginForm.resetFields();
       onClose();
