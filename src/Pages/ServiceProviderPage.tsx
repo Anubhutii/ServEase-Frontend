@@ -109,10 +109,7 @@ const ServiceProviderCards = () => {
             Become a Service Provider
           </div>
 
-          {/* <p className="mt-4 text-base lg:pt-2 sm:text-lg text-slate-600 max-w-xl text-center md:text-left md:pl-16">
-            Earn money providing local services in your area and grow your income
-            with flexible work opportunities.
-          </p> */}
+          
           <p className="mt-5 text-base lg:pt-2 sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl text-center md:text-left md:pl-16 transition-colors">
             Offer local services, earn on your terms, and connect with customers nearby. Flexible schedules, steady opportunities, and real income growth—all in your area.
           </p>

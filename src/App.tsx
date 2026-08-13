@@ -13,6 +13,8 @@ import UserDashboard from "./Pages/UserDashboard";
 import JobPostingPage from "./Pages/JobPostingPage";
 import BidReviewList from "./Pages/BidReviewList";
 import NegotiationPage from "./Pages/NegotiationPage";
+import UserChatPage from "./Pages/UserChatPage";
+import ProviderChatPage from "./Pages/ProviderChatPage";
 import UserOnlyLayout, { ProviderGuard } from "./Components/RoleGuard";
 
 function App() {
@@ -22,6 +24,7 @@ function App() {
       <Routes>
         {/* Provider only */}
         <Route path="/provider-dashboard" element={<ProviderGuard><ProviderDashboard /></ProviderGuard>} />
+        <Route path="/provider-chat/:bookingId" element={<ProviderGuard><ProviderChatPage /></ProviderGuard>} />
 
         {/* All other routes — blocked in provider mode */}
         <Route element={<UserOnlyLayout />}>
@@ -34,6 +37,7 @@ function App() {
           <Route path="/post-job" element={<JobPostingPage />} />
           <Route path="/jobs/:jobId/bids" element={<BidReviewList />} />
           <Route path="/negotiation/:id" element={<NegotiationPage />} />
+          <Route path="/user-chat/:bookingId" element={<UserChatPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

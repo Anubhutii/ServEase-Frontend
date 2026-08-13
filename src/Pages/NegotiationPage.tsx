@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../Services/axios';
 import { useAuth } from '../Context/AuthContext';
 import { useTheme } from '../Context/ThemeContext';
+import { useRole } from '../Context/RoleContext';
 import { SendOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -12,6 +13,7 @@ const NegotiationPage: React.FC = () => {
     const { id } = useParams<{ id: string }>(); // negotiation Id
     const { user } = useAuth();
     const { theme } = useTheme();
+    const { activeRole } = useRole();
     const navigate = useNavigate();
     const isDark = theme === "dark";
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -24,9 +26,7 @@ const NegotiationPage: React.FC = () => {
     const fetchNegotiation = async () => {
         try {
             if (!id) return;
-            // Ideally we should have an endpoint for single negotiation
-            // or we just fetch user/provider negotiation history. Let's assume we have it.
-            const res = await axios.get(`/api/negotiations/history/${id}`);
+            const res = await axios.get(`/api/negotiations/${id}`);
             setNegotiation(res.data.negotiation);
         } catch (error) {
             console.error(error);
@@ -48,9 +48,9 @@ const NegotiationPage: React.FC = () => {
     const handleSendMessage = async () => {
         if (!messageText.trim()) return;
         try {
-            await axios.post(`/api/negotiations/${id}/messages`, {
+            await axios.post(`/api/negotiations/${negotiation?._id || id}/messages`, {
                 senderId: user?.id || user?._id,
-                senderModel: "User", // This should be dynamic based on Context.
+                senderModel: activeRole === "provider" ? "ServiceProvider" : "User",
                 text: messageText
             });
             setMessageText('');
@@ -64,10 +64,10 @@ const NegotiationPage: React.FC = () => {
     const handleSendOffer = async () => {
         if (!offerPrice) return;
         try {
-            await axios.put(`/api/negotiations/${id}/offers`, {
-                proposedById: user?.id || user?._id,
-                proposedByModel: "User", // This should be dynamic based on Context.
-                offered_price: Number(offerPrice)
+            await axios.put(`/api/negotiations/${negotiation?._id || id}/offers`, {
+                proposedBy: user?.id || user?._id,
+                proposedByModel: activeRole === "provider" ? "ServiceProvider" : "User",
+                price: Number(offerPrice)
             });
             setOfferPrice('');
             fetchNegotiation();

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, Card, Typography, Spin, Tag, Button, List } from 'antd';
+import { Tabs, Card, Typography, Spin, Tag, Button, List, Popconfirm, message } from 'antd';
 import axios from '../Services/axios';
 import { useAuth } from '../Context/AuthContext';
 import { useTheme } from '../Context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
+import UserChatbox from '../Components/UserChatbox';
 
 const { Title, Text } = Typography;
 
@@ -14,6 +16,7 @@ const UserDashboard: React.FC = () => {
     const isDark = theme === "dark";
 
     const [loading, setLoading] = useState(true);
+    const [activeChatBookingId, setActiveChatBookingId] = useState<string | null>(null);
     const [data, setData] = useState({
         activeBookings: [],
         history: [],
@@ -47,6 +50,37 @@ const UserDashboard: React.FC = () => {
         if (user) fetchData();
     }, [user]);
 
+    const handleDeleteJob = async (jobId: string) => {
+        try {
+            await axios.delete(`/api/jobs/${jobId}`);
+            message.success('Request deleted successfully');
+            fetchData();
+        } catch (error: any) {
+            console.error("Delete job error:", error);
+            message.error(error.response?.data?.message || 'Failed to delete request');
+        }
+    };
+
+    const handleCancelBooking = async (bookingId: string) => {
+        try {
+            await axios.delete(`/api/bookings/${bookingId}`);
+            message.success('Booking cancelled successfully');
+            fetchData();
+        } catch (error: any) {
+            console.error("Cancel booking error:", error);
+            message.error(error.response?.data?.message || 'Failed to cancel booking');
+        }
+    };
+
+    const cleanDescription = (details: string) => {
+        if (!details) return "N/A";
+        const descMarker = " - Description: ";
+        if (details.includes(descMarker)) {
+            return details.split(descMarker)[1] || "N/A";
+        }
+        return details;
+    };
+
     const textColor = isDark ? "text-white" : "text-gray-900";
     const mutedText = isDark ? "text-gray-400" : "text-gray-500";
     const cardClass = isDark ? "bg-slate-800 border-slate-700" : "";
@@ -56,20 +90,29 @@ const UserDashboard: React.FC = () => {
             itemLayout="horizontal"
             dataSource={data.activeBookings}
             renderItem={(item: any) => (
-                <Card className={`mb-4 w-full ${cardClass}`}>
-                    <div className="flex justify-between">
+                <Card key={item._id} className={`mb-4 w-full ${cardClass}`}>
+                    <div className="flex justify-between items-start">
                         <div>
                             <Title level={5} className={textColor}>{item.job?.title || "Direct Provider Booking"}</Title>
-                            <Text className={mutedText}>{item.service_details}</Text>
+                            <Text className={mutedText}>{cleanDescription(item.service_details)}</Text>
                             <div className="mt-2 text-sm text-indigo-500 font-medium">Final Price: ₹{item.final_price}</div>
                         </div>
-                        <Tag color="blue">{item.status}</Tag>
+                        <Tag color={item.status === 'accepted' ? 'green' : item.status === 'pending' ? 'gold' : 'blue'}>{item.status}</Tag>
                     </div>
                     <div className="mt-4 flex gap-2">
-                        <Button size="small" type="primary" onClick={() => navigate(`/negotiation/${item._id}`)}>
+                        <Button size="small" type="primary" onClick={() => setActiveChatBookingId(item._id)}>
                             Message Provider
                         </Button>
-                        <Button size="small" danger>Cancel</Button>
+                        <Popconfirm
+                            title="Cancel Booking"
+                            description="Are you sure you want to cancel this booking?"
+                            onConfirm={() => handleCancelBooking(item._id)}
+                            okText="Yes"
+                            cancelText="No"
+                            okButtonProps={{ danger: true }}
+                        >
+                            <Button size="small" danger>Cancel</Button>
+                        </Popconfirm>
                     </div>
                 </Card>
             )}
@@ -82,7 +125,7 @@ const UserDashboard: React.FC = () => {
             itemLayout="horizontal"
             dataSource={data.jobs}
             renderItem={(job: any) => (
-                <Card className={`mb-4 w-full ${cardClass}`}>
+                <Card key={job._id} className={`mb-4 w-full ${cardClass}`}>
                     <div className="flex justify-between">
                         <div>
                             <Title level={5} className={textColor}>{job.title}</Title>
@@ -94,9 +137,24 @@ const UserDashboard: React.FC = () => {
                         <div className={`font-semibold ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>
                             {job.bidCount} Bids Received
                         </div>
-                        <Button type="primary" onClick={() => navigate(`/jobs/${job._id}/bids`)}>
-                            Review Bids
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button type="primary" onClick={() => navigate(`/jobs/${job._id}/bids`)}>
+                                Review Bids
+                            </Button>
+                            <Popconfirm
+                                title="Delete Request"
+                                description="Are you sure you want to delete this job request?"
+                                onConfirm={() => handleDeleteJob(job._id)}
+                                okText="Yes"
+                                cancelText="No"
+                                okButtonProps={{ danger: true }}
+                            >
+                                <Button 
+                                    danger 
+                                    icon={<Trash2 size={16} />} 
+                                />
+                            </Popconfirm>
+                        </div>
                     </div>
                 </Card>
             )}
@@ -108,9 +166,9 @@ const UserDashboard: React.FC = () => {
         <List
             itemLayout="horizontal"
             dataSource={data.history}
-            renderItem={(item: any) => (
-                <Card className={`mb-4 w-full ${cardClass}`}>
-                    <div className="flex justify-between">
+            renderItem={(item: any, index: number) => (
+                <Card key={item._id || index} className={`mb-4 w-full ${cardClass}`}>
+                    <div className="flex justify-between items-center">
                         <Text strong className={textColor}>{item.job?.title || "Service Booked"}</Text>
                         <Tag color={item.status === 'completed' ? 'success' : 'error'}>{item.status}</Tag>
                     </div>
@@ -141,6 +199,13 @@ const UserDashboard: React.FC = () => {
             <div className={`p-6 rounded-xl shadow-sm ${isDark ? "bg-slate-800 border-slate-700" : "bg-white"}`}>
                 <Tabs defaultActiveKey="1" items={items} />
             </div>
+
+            {activeChatBookingId && (
+                <UserChatbox 
+                    bookingId={activeChatBookingId} 
+                    onClose={() => setActiveChatBookingId(null)} 
+                />
+            )}
         </div>
     );
 };

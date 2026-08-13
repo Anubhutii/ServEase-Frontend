@@ -12,6 +12,8 @@ const CartPage = () => {
 
   const [slot, setSlot] = useState("");
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
 
   const tax = 9;
   const finalAmount = total + tax;
@@ -28,6 +30,14 @@ const CartPage = () => {
       message.error("Please select a time slot");
       return;
     }
+    if (!phone.trim()) {
+      message.error("Please enter your mobile number");
+      return;
+    }
+    if (!address.trim()) {
+      message.error("Please enter your address");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -37,9 +47,11 @@ const CartPage = () => {
         axios.post('/api/bookings/direct', {
           user: user?.id || user?._id,
           provider: item.id,
-          service_details: `${item.title} (Qty: ${item.quantity}, Slot: ${slot})`,
+          service_details: item.description || "N/A",
           final_price: (item.price * item.quantity) + (tax / cart.length), // distribute tax
-          completion_date: new Date().toISOString() // Assuming 'today' for simplification
+          completion_date: new Date().toISOString(), // Assuming 'today' for simplification
+          phone,
+          address
         })
       ));
       message.success("Booking request sent successfully to the providers!");
@@ -199,6 +211,32 @@ const CartPage = () => {
               <span className="font-bold text-blue-800 dark:text-blue-200">{slot}</span>
             </div>
             <span className="text-blue-400">⏰</span>
+          </div>
+        )}
+
+        {hasItems && (
+          <div className="space-y-4 text-left border-t border-b dark:border-slate-800 py-4 my-4">
+            <h4 className="font-bold text-sm text-slate-800 dark:text-white">Contact & Address Info</h4>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Mobile Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter your mobile number"
+                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-blue-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Delivery/Service Address</label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your address"
+                rows={2}
+                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-blue-500 focus:border-blue-500 focus:outline-none resize-none"
+              />
+            </div>
           </div>
         )}
 

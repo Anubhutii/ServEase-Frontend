@@ -34,6 +34,7 @@ const JobPostingPage: React.FC = () => {
                     max: values.maxBudget,
                 },
                 deadline: values.deadline,
+                phone: values.phone,
             };
 
             await axios.post('/api/jobs', payload, { headers: { Authorization: `Bearer ${token}` } });
@@ -122,6 +123,14 @@ const JobPostingPage: React.FC = () => {
                         rules={[{ required: true, message: 'Please provide an address' }]}
                     >
                         <Input size="large" placeholder="Street, City, Zip" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label={<span className={isDark ? "text-gray-200" : ""}>Mobile Number</span>}
+                        name="phone"
+                        rules={[{ required: true, message: 'Please provide your mobile number' }]}
+                    >
+                        <Input size="large" placeholder="E.g. 9876543210" />
                     </Form.Item>
 
                     <Form.Item>

@@ -44,6 +44,8 @@ const SPRightSidebar: React.FC = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
 
   const upcomingDays = useMemo(() => getUpcomingDays(7), []);
 
@@ -58,15 +60,27 @@ const SPRightSidebar: React.FC = () => {
       return;
     }
 
+    if (!phone.trim()) {
+      message.error("Please enter your mobile number");
+      return;
+    }
+
+    if (!address.trim()) {
+      message.error("Please enter your address");
+      return;
+    }
+
     setLoading(true);
     try {
       await Promise.all(cart.map((item: any) =>
         axios.post('/api/bookings/direct', {
           user: user?.id || user?._id,
           provider: item.id,
-          service_details: `${item.title} - Description: ${item.description || "N/A"}`,
+          service_details: item.description || "N/A",
           final_price: item.price,
-          completion_date: new Date(item.bookingDay).toISOString()
+          completion_date: new Date(item.bookingDay).toISOString(),
+          phone,
+          address,
         })
       ));
       message.success("Booking requests sent successfully to the providers!");
@@ -184,6 +198,31 @@ const SPRightSidebar: React.FC = () => {
 
       {/* 5. REQUEST SUMMARY */}
       <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
+        {cart.length > 0 && (
+          <div className="space-y-3 mb-4 text-left">
+            <h4 className="font-bold text-[14px] text-slate-800 dark:text-white">Contact & Address Info</h4>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Mobile Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter your mobile number"
+                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-[#1b2230] border border-gray-200 dark:border-slate-700 rounded-[10px] text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-[#4640ff] focus:border-[#4640ff] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Delivery/Service Address</label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your address"
+                rows={2}
+                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-[#1b2230] border border-gray-200 dark:border-slate-700 rounded-[10px] text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-[#4640ff] focus:border-[#4640ff] focus:outline-none resize-none"
+              />
+            </div>
+          </div>
+        )}
         <button
           onClick={handleRequest}
           disabled={cart.length === 0 || !cart.every((item: any) => item.bookingDay) || loading}
