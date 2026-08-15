@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Global Styles */
 * {
   box-sizing: border-box;
@@ -11,6 +13,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @apply bg-white dark:bg-slate-950 text-slate-900 dark:text-gray-100 transition-colors duration-300;
 }
 
 /* Smooth scrolling */
@@ -28,13 +31,116 @@ html {
   background: #f1f1f1;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Ant Design Global Overrides for Dark Mode */
+.dark .ant-modal-content,
+.dark .ant-drawer-content {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #1e293b;
+}
+
+.dark .ant-modal-close,
+.dark .ant-drawer-close {
+  color: #94a3b8 !important;
+}
+
+.dark .ant-modal-header {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+.dark .ant-modal-title {
+  color: #f1f5f9 !important;
+}
+
+.dark .ant-input,
+.dark .ant-select-selector,
+.dark .ant-input-number,
+.dark .ant-picker {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .ant-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .ant-select-selection-placeholder {
+  color: #64748b !important;
+}
+
+.dark .ant-select-dropdown {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .ant-select-item {
+  color: #cbd5e1 !important;
+}
+
+.dark .ant-select-item-option-selected {
+  background-color: #334155 !important;
+}
+
+.dark .ant-dropdown-menu {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .ant-dropdown-menu-item {
+  color: #cbd5e1 !important;
+}
+
+.dark .ant-dropdown-menu-item:hover,
+.dark .ant-dropdown-menu-item-active {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .ant-dropdown-menu-item-disabled,
+.dark .ant-dropdown-menu-item-disabled:hover {
+  background-color: transparent !important;
+  color: #64748b !important;
+}
+
+.dark .ant-dropdown-menu-item-divider {
+  background-color: #334155 !important;
+}
+
+.dark .ant-select-item-option-active {
+  background-color: #1e293b !important;
+}
+
+.dark .ant-checkbox-inner {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.dark .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
 }
 
 /* Ant Design Modal customizations */
@@ -62,3 +168,71 @@ html {
   scrollbar-width: none;
 }
 
+/* AntD spacing fix */
+.ant-form-item {
+  margin-bottom: 8px;
+}
+
+.ant-input {
+  padding: 5px;
+  padding-left: 10px;
+}
+
+.glass-effect {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.75) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-effect {
+  background: linear-gradient(135deg,
+      rgba(15, 23, 42, 0.85) 0%,
+      rgba(15, 23, 42, 0.75) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 640px) {
+  .glass-effect {
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.8) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .dark .glass-effect {
+    background: linear-gradient(135deg,
+        rgba(15, 23, 42, 0.9) 0%,
+        rgba(15, 23, 42, 0.8) 100%);
+  }
+}
+
+.glass-card {
+  background: linear-gradient(135deg,
+      rgba(30, 41, 59, 0.85) 0%,
+      rgba(15, 23, 42, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

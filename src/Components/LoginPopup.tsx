@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { message, Modal, Form, Input, Button, Divider, Typography } from "antd";
-import { FcGoogle } from "react-icons/fc";
+import { Modal, Form, Input, Button, Divider, Typography, App } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import loginImg from "../assets/loginimg.png";
-import { useApi } from "../Context/useApi";
+
+
+import { useApi } from "../Context/ApiContext";
 import { useAuth } from "../Context/AuthContext";
+
+
+import { GoogleLogin } from '@react-oauth/google'
+import axios from '../Services/axios'
 
 
 const { Title, Text } = Typography;
@@ -17,6 +22,7 @@ const LoginPopup = ({
   show: boolean;
   onClose: () => void;
 }) => {
+  const { message } = App.useApp();
   const [isLogin, setIsLogin] = useState(true);
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
@@ -25,17 +31,57 @@ const LoginPopup = ({
   const { login: authLogin } = useAuth();
 
 
+  /* 🔐 GOOGLE LOGIN */
+  const handleGoogleSuccess = async (res: any) => {
+    try {
+      if (!res.credential) {
+        throw new Error("No credential returned from Google");
+      }
+
+      const idToken = res.credential;
+
+      const response = await axios.post("/api/auth/google", {
+        idToken,
+      });
+
+      const { success, token, user } = response.data;
+
+      if (success || token) {
+        if (token) localStorage.setItem("token", token);
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+          authLogin(user);
+        }
+
+        message.success("Logged in with Google successfully!");
+        onClose();
+      } else {
+        message.error(response.data?.message || "Google login failed");
+      }
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      const errMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Google login failed. Please ensure the backend server is running.";
+      message.error(errMsg);
+    }
+  };
+
   /* 🔐 LOGIN SUBMIT */
   const handleLogin = async (values: { email: string; password: string }) => {
     try {
       const res = await login(values);
-      console.log("Login success:", res);
-      authLogin();
+      const { token, user } = res;
+      if (token) localStorage.setItem("token", token);
+      authLogin(user);
       message.success("Login successful!");
       loginForm.resetFields();
       onClose();
-    } catch (err) {
-      console.log("Login failed");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      const msg = err.response?.data?.message || err.message || "Invalid email or password";
+      message.error(msg);
     }
   };
 
@@ -48,11 +94,13 @@ const LoginPopup = ({
     try {
       const res = await register(values);
       console.log("Register success:", res);
-      message.success("Registration successful!");
+      message.success("Registration successful! Please log in.");
       registerForm.resetFields();
       setIsLogin(true);
-    } catch (err) {
-      console.log("Register failed");
+    } catch (err: any) {
+      console.error("Register error:", err);
+      const msg = err.response?.data?.message || err.message || "Registration failed. Please check details.";
+      message.error(msg);
     }
   };
 
@@ -99,7 +147,7 @@ const LoginPopup = ({
             <Title level={2} className="!text-white !mb-2">
               Welcome to ServEase
             </Title>
-            <Text className="text-white/90">
+            <Text className=" !text-gray-200 !mb-2">
               Your trusted partner for home services
             </Text>
           </div>
@@ -126,14 +174,28 @@ const LoginPopup = ({
           </div>
 
           {/* GOOGLE BUTTON */}
-          <Button
+          {/* <Button
             size="large"
             block
             icon={<FcGoogle className="text-xl" />}
             className="mb-4 !h-12 !rounded-lg !flex !items-center !justify-center"
           >
             Continue with Google
-          </Button>
+          </Button> */}
+
+          <div className="mb-4 flex justify-center w-full">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => message.error('Google Login Failed: popup closed or origin disallowed')}
+              useOneTap={false}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="continue_with"
+              width="100%"
+            />
+          </div>
+
 
           <Divider>OR</Divider>
 
@@ -285,6 +347,8 @@ const LoginPopup = ({
               )}
             </AnimatePresence>
           </div>
+
+
 
           {/* TOGGLE */}
           <div className="text-center mt-6">

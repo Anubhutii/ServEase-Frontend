@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Modal, Button, AutoComplete, Typography, Space, Spin, message } from "antd";
+import { Modal, Button, AutoComplete, Typography, Space, App } from "antd";
 import { FaLocationDot } from "react-icons/fa6";
-import { SearchOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
+import { reverseGeocode } from "../Services/api";
+import { setCachedLocation } from "../Services/locationManager";
 
 const { Title, Text } = Typography;
 
@@ -26,6 +28,7 @@ const popularCities = [
 ];
 
 const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
+  const { message } = App.useApp();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,26 +47,22 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
         const lon = position.coords.longitude;
 
         try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
-            {
-              headers: {
-                Accept: "application/json",
-                "User-Agent": "ServEaseApp/1.0 (dev@servease.com)",
-              },
-            }
-          );
+          const res = await reverseGeocode(lat, lon);
 
-          if (!res.ok) throw new Error("OSM error");
 
-          const data = await res.json();
+          // Based on the format: { location: { address: { city, town, village... } } }
+          const loc = res.data.location || {};
+          const address = loc.address || {};
 
           const city =
-            data.address.city ||
-            data.address.town ||
-            data.address.village ||
-            data.address.district ||
+            address.city ||
+            address.town ||
+            address.village ||
+            address.county ||
+            address.state_district ||
             "Your Location";
+
+          setCachedLocation({ lat, lon, city, address: loc.display_name || city });
 
           message.success(`Location detected: ${city}`);
           onSelectLocation(city);
@@ -109,6 +108,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
   };
 
   const handleSelect = (value: string) => {
+    setCachedLocation({ city: value, address: value });
     onSelectLocation(value);
     setSearchValue("");
     setOptions([]);
@@ -116,6 +116,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
   };
 
   const handleCityClick = (city: string) => {
+    setCachedLocation({ city, address: city });
     onSelectLocation(city);
     onClose();
   };
@@ -128,8 +129,8 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
       centered
       width={500}
       title={
-        <Title level={4} className="!mb-0">
-          Select your location
+        <Title level={4} >
+          Select Your Location
         </Title>
       }
     >
@@ -146,7 +147,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
             icon={<FaLocationDot />}
             onClick={detectLocation}
             loading={loading}
-            className="!h-14 !rounded-lg !bg-gradient-to-r !from-blue-500 !to-purple-500 !border-none"
+            className="!h-14 !rounded-lg !bg-blue-800 hover:!bg-blue-700 dark:!bg-blue-900 dark:hover:!bg-blue-800 !border-none !text-white !shadow-md transition-colors"
           >
             {loading ? "Detecting location..." : "Use current location"}
           </Button>
