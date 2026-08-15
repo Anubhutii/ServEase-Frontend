@@ -1,240 +1,165 @@
-import React, { useMemo, useState } from "react";
-import { useCart } from "../Context/CartContext";
+import React from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Input, message } from "antd";
-import { Trash2 } from "lucide-react";
-import axios from "../Services/axios";
-
-const { TextArea } = Input;
-
-const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-const getUpcomingDays = (numDays = 7) => {
-  const upcoming = [];
-  const today = new Date();
-
-  for (let i = 0; i < numDays; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-
-    let label = '';
-
-    if (i === 0) {
-      label = 'Today';
-    } else if (i === 1) {
-      label = 'Tomorrow';
-    } else {
-      const dayName = daysOfWeek[date.getDay()];
-      const dayNum = date.getDate();
-      const monthName = monthNames[date.getMonth()];
-      label = `${dayName}, ${dayNum} ${monthName}`;
-    }
-
-    const value = date.toISOString().split('T')[0];
-    upcoming.push({ value, label });
-  }
-  return upcoming;
-};
+import {
+  Sparkles,
+  ShieldCheck,
+  Clock,
+  LogIn,
+  PlusCircle,
+  Zap,
+} from "lucide-react";
+import { usePostJob } from "./PostJobModal";
 
 const SPRightSidebar: React.FC = () => {
-  const { cart, decreaseQty, updateBookingDay, updateDescription, clearCart } = useCart();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-
-  const upcomingDays = useMemo(() => getUpcomingDays(7), []);
-
-  const handleRequest = async () => {
-    if (!isLoggedIn || !user) {
-      message.error("Please login to proceed with booking");
-      return;
-    }
-
-    if (!cart.every((item: any) => item.bookingDay)) {
-      message.error("Please select booking days for all items");
-      return;
-    }
-
-    if (!phone.trim()) {
-      message.error("Please enter your mobile number");
-      return;
-    }
-
-    if (!address.trim()) {
-      message.error("Please enter your address");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await Promise.all(cart.map((item: any) =>
-        axios.post('/api/bookings/direct', {
-          user: user?.id || user?._id,
-          provider: item.id,
-          service_details: item.description || "N/A",
-          final_price: item.price,
-          completion_date: new Date(item.bookingDay).toISOString(),
-          phone,
-          address,
-        })
-      ));
-      message.success("Booking requests sent successfully to the providers!");
-      clearCart();
-      navigate('/user-dashboard');
-    } catch (error) {
-      console.error("Booking error:", error);
-      message.error("Failed to send booking requests");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const { openPostJob } = usePostJob();
 
   return (
-    <div className="w-full space-y-4 transition-colors duration-500">
-
-      {/* 1. ACCOUNT SECTION */}
-      {!isLoggedIn && (
-        <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5 space-y-3">
-          <div>
-            <h3 className="font-bold text-[16px] text-slate-800 dark:text-white">Account</h3>
-            <p className="text-[13px] text-gray-500 dark:text-gray-400">Login to continue your booking</p>
+    <aside className="w-full space-y-4 transition-all duration-300">
+      
+      {/* 1. HERO POST-A-JOB BANNER */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-600 p-4 text-white shadow-sm">
+        <div className="relative z-10 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-blue-50 flex items-center gap-1">
+              <Sparkles size={11} className="text-amber-300 animate-spin-slow" />
+              <span>Custom Quote</span>
+            </span>
           </div>
-          <button onClick={() => navigate("/")} className="w-full bg-[#4640ff] hover:bg-[#3135c7] text-white py-3 rounded-[12px] font-semibold transition shadow-md">
-            Login / Sign up
+
+          <div>
+            <h3 className="text-sm font-extrabold tracking-tight leading-tight">
+              Post a Task & Receive Bids
+            </h3>
+            <p className="text-[11px] text-blue-100/90 mt-0.5 leading-relaxed">
+              Describe your repair or maintenance needs & let nearby specialists place offers.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => openPostJob()}
+            className="w-full py-2.5 px-3.5 bg-white hover:bg-slate-50 text-blue-700 font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+          >
+            <PlusCircle size={14} />
+            <span>Post a Job Free</span>
+          </button>
+        </div>
+
+        {/* Decorative backdrop shapes */}
+        <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-white/10 blur-xl pointer-events-none" />
+      </div>
+
+      {/* 2. GUEST LOGIN CARD (IF LOGGED OUT) */}
+      {!isLoggedIn && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 shadow-xs space-y-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+              <LogIn size={14} />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                Guest Visitor
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Log in to auto-fill address & track bookings
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="w-full py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold transition shadow-2xs"
+          >
+            Login / Sign Up
           </button>
         </div>
       )}
 
-      
-      {/* POST A JOB CTA */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => navigate("/post-job")}
-          className="px-5 py-2.5 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow transition-all active:scale-95"
-        >
-          Post a Job
-        </button>
-      </div>
-
-      {/* 2. YOUR SERVICES */}
-      <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
-        <h3 className="font-bold text-[16px] text-slate-800 dark:text-white mb-4">Your services</h3>
-
-        {cart.length === 0 ? (
-          <div className="text-center py-6 bg-gray-50 dark:bg-slate-800/40 rounded-xl">
-            <p className="text-[14px] text-gray-500 dark:text-gray-400">Your cart is empty</p>
+      {/* 3. HOW SERVEASE WORKS */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+        <div className="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center">
+            <Zap size={13} />
           </div>
-        ) : (
-          <div className="space-y-4">
-            {cart.map((item) => (
-              <div key={item.id} className="flex flex-col gap-3 bg-gray-50 dark:bg-[#1a202c] p-3 rounded-xl border border-gray-100 dark:border-slate-800/60">
-                <div className="flex justify-between items-center">
-                  <div className="flex-1 pr-3">
-                    <p className="text-[14px] font-bold leading-tight text-slate-800 dark:text-gray-100 mb-1">
-                      {item.title}
-                    </p>
-                    <p className="text-[13px] text-[#4a90e2] font-semibold">₹{item.price}</p>
-                  </div>
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+            How It Works
+          </h3>
+        </div>
 
-                  <div>
-                    <button
-                      onClick={() => decreaseQty(item.id)}
-                      className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-                      title="Remove provider from cart"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Individual Day Selector */}
-                <div className="mt-2">
-                  <p className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 mb-2">Select Day</p>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    {upcomingDays.map((day) => {
-                      const isSelected = item.bookingDay === day.value;
-                      return (
-                        <button
-                          key={day.value}
-                          onClick={() => updateBookingDay(item.id, day.value)}
-                          className={`flex-shrink-0 px-3 py-1.5 rounded-[10px] text-[13px] font-medium transition-colors whitespace-nowrap border
-                            ${isSelected
-                              ? 'bg-[#4640ff] text-white border-[#4640ff]'
-                              : 'bg-white dark:bg-[#1b2230] text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-700 hover:border-[#4640ff] dark:hover:border-[#4640ff]'}
-                          `}
-                        >
-                          {day.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Individual Description Area */}
-                <div className="mt-1">
-                  <p className="text-[12px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 mt-1">Reason / Description</p>
-                  <TextArea
-                    value={item.description || ""}
-                    onChange={(e) => updateDescription(item.id, e.target.value)}
-                    placeholder="Describe your requirement (e.g., AC not cooling, kitchen deep cleaning, wiring issue)"
-                    autoSize={{ minRows: 2, maxRows: 4 }}
-                    maxLength={250}
-                    className="!rounded-[10px] !text-[13px] dark:!bg-[#1b2230] dark:!border-slate-700 dark:!text-gray-300 dark:placeholder:!text-gray-500 hover:!border-[#4640ff] focus:!border-[#4640ff]"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-
-
-      {/* 5. REQUEST SUMMARY */}
-      <div className="bg-white dark:bg-[#131720] rounded-[16px] border border-gray-100 dark:border-slate-800 shadow-sm p-4 md:p-5">
-        {cart.length > 0 && (
-          <div className="space-y-3 mb-4 text-left">
-            <h4 className="font-bold text-[14px] text-slate-800 dark:text-white">Contact & Address Info</h4>
+        <div className="space-y-2.5 text-xs">
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+              1
+            </span>
             <div>
-              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Mobile Number</label>
-              <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter your mobile number"
-                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-[#1b2230] border border-gray-200 dark:border-slate-700 rounded-[10px] text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-[#4640ff] focus:border-[#4640ff] focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400">Delivery/Service Address</label>
-              <textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your address"
-                rows={2}
-                className="w-full mt-1 px-3 py-2 text-[13px] bg-gray-50 dark:bg-[#1b2230] border border-gray-200 dark:border-slate-700 rounded-[10px] text-gray-800 dark:text-gray-300 placeholder:text-gray-500 hover:border-[#4640ff] focus:border-[#4640ff] focus:outline-none resize-none"
-              />
+              <p className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                Select a Specialist
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Browse ratings, experience & upfront consultation fees.
+              </p>
             </div>
           </div>
-        )}
-        <button
-          onClick={handleRequest}
-          disabled={cart.length === 0 || !cart.every((item: any) => item.bookingDay) || loading}
-          className={`w-full py-3 md:py-3.5 rounded-[12px] font-bold text-[15px] transition shadow-md mb-4
-            ${(cart.length > 0 && cart.every((item: any) => item.bookingDay))
-              ? 'bg-[#4640ff] hover:bg-[#3135c7] text-white cursor-pointer'
-              : 'bg-gray-200 dark:bg-[#1e2533] text-gray-400 dark:text-slate-500 cursor-not-allowed'
-            }`}
-        >
-          {loading ? "Processing..." : (cart.length > 0 && !cart.every((item: any) => item.bookingDay) ? 'Select Booking Days' : 'Request Now')}
-        </button>      </div>
-    </div>
+
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+              2
+            </span>
+            <div>
+              <p className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                Schedule Arrival Window
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Pick a convenient day & 2-hour arrival slot on checkout.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+              3
+            </span>
+            <div>
+              <p className="font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                Pay After Service
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Inspect completed work before releasing payment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. SERVEASE QUALITY & SAFETY ASSURANCES */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Quality Guarantees
+        </h4>
+
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            <ShieldCheck size={14} className="text-emerald-500 flex-shrink-0" />
+            <span className="text-[11px] font-semibold">100% Background Verified Pros</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            <Clock size={14} className="text-blue-500 flex-shrink-0" />
+            <span className="text-[11px] font-semibold">Free Rescheduling Up to 2 hrs</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+            <Sparkles size={14} className="text-amber-500 flex-shrink-0" />
+            <span className="text-[11px] font-semibold">30-Day Workmanship Warranty</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
   );
 };
 

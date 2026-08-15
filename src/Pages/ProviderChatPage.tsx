@@ -26,11 +26,13 @@ const ProviderChatPage: React.FC = () => {
 
             {/* Chatbox Rendered directly */}
             {bookingId && (
-                <ProviderChatbox 
-                    bookingId={bookingId} 
-                    onClose={() => navigate('/provider-dashboard')} 
-                    isPage={true}
-                />
+                <div className={`w-full max-w-2xl rounded-3xl border shadow-xl overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}>
+                    <ProviderChatbox 
+                        bookingId={bookingId} 
+                        onClose={() => navigate('/provider-dashboard')} 
+                        isPage={true}
+                    />
+                </div>
             )}
         </div>
     );

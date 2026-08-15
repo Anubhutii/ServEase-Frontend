@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Typography, Spin, Input, Button, List, Space, Tag, message } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Card, Typography, Spin, Input, Button, Tag, message } from 'antd';
+import { useParams } from 'react-router-dom';
 import axios from '../Services/axios';
 import { useAuth } from '../Context/AuthContext';
 import { useTheme } from '../Context/ThemeContext';
@@ -14,7 +14,6 @@ const NegotiationPage: React.FC = () => {
     const { user } = useAuth();
     const { theme } = useTheme();
     const { activeRole } = useRole();
-    const navigate = useNavigate();
     const isDark = theme === "dark";
     const messagesEndRef = useRef<HTMLDivElement>(null);
 

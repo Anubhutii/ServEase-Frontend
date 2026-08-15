@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { message, Modal, Form, Input, Button, Divider, Typography } from "antd";
+import { Modal, Form, Input, Button, Divider, Typography, App } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import loginImg from "../assets/loginimg.png";
@@ -22,6 +22,7 @@ const LoginPopup = ({
   show: boolean;
   onClose: () => void;
 }) => {
+  const { message } = App.useApp();
   const [isLogin, setIsLogin] = useState(true);
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
@@ -45,26 +46,25 @@ const LoginPopup = ({
 
       const { success, token, user } = response.data;
 
-      if (success) {
-        // Store JWT token in localStorage
-        localStorage.setItem("token", token);
+      if (success || token) {
+        if (token) localStorage.setItem("token", token);
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+          authLogin(user);
+        }
 
-        // Save user data in state/context
-        authLogin(user);
-
-        message.success("Logged in with Google!");
-
-        // Close modal
+        message.success("Logged in with Google successfully!");
         onClose();
-
-        // Redirect user to dashboard/home page
-        window.location.href = "/";
       } else {
-        message.error("Google login failed");
+        message.error(response.data?.message || "Google login failed");
       }
     } catch (error: any) {
       console.error("Google login error:", error);
-      message.error(error.response?.data?.message || "Google login failed");
+      const errMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Google login failed. Please ensure the backend server is running.";
+      message.error(errMsg);
     }
   };
 
@@ -78,8 +78,10 @@ const LoginPopup = ({
       message.success("Login successful!");
       loginForm.resetFields();
       onClose();
-    } catch (err) {
-      console.log("Login failed");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      const msg = err.response?.data?.message || err.message || "Invalid email or password";
+      message.error(msg);
     }
   };
 
@@ -92,11 +94,13 @@ const LoginPopup = ({
     try {
       const res = await register(values);
       console.log("Register success:", res);
-      message.success("Registration successful!");
+      message.success("Registration successful! Please log in.");
       registerForm.resetFields();
       setIsLogin(true);
-    } catch (err) {
-      console.log("Register failed");
+    } catch (err: any) {
+      console.error("Register error:", err);
+      const msg = err.response?.data?.message || err.message || "Registration failed. Please check details.";
+      message.error(msg);
     }
   };
 
@@ -179,11 +183,16 @@ const LoginPopup = ({
             Continue with Google
           </Button> */}
 
-          <div className="mb-4 flex justify-center">
+          <div className="mb-4 flex justify-center w-full">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => message.error('Google Login Failed')}
+              onError={() => message.error('Google Login Failed: popup closed or origin disallowed')}
               useOneTap={false}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="continue_with"
+              width="100%"
             />
           </div>
 

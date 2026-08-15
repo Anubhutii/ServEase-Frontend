@@ -7,6 +7,7 @@ type CartItem = {
   quantity: number;
   bookingDay?: string;
   description?: string;
+  image?: string;
 };
 
 type CartContextType = {
@@ -25,17 +26,9 @@ const CartContext = createContext<CartContextType | null>(null);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // ✅ Add item
+  // ✅ Single Provider Booking: Replace cart with the single selected provider
   const addToCart = (item: any) => {
-    setCart((prev) => {
-      const existing = prev.find((p) => p.id === item.id);
-
-      if (existing) {
-        return prev;
-      }
-
-      return [...prev, { ...item, quantity: 1 }];
-    });
+    setCart([{ ...item, quantity: 1 }]);
   };
 
   // ✅ Increase qty

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Modal, Button, AutoComplete, Typography, Space, message } from "antd";
+import { Modal, Button, AutoComplete, Typography, Space, App } from "antd";
 import { FaLocationDot } from "react-icons/fa6";
 import { EnvironmentOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { reverseGeocode } from "../Services/api";
+import { setCachedLocation } from "../Services/locationManager";
 
 const { Title, Text } = Typography;
 
@@ -27,6 +28,7 @@ const popularCities = [
 ];
 
 const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
+  const { message } = App.useApp();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
             address.state_district ||
             "Your Location";
 
-          localStorage.setItem("userLocation", JSON.stringify({ lat, lon, city }));
+          setCachedLocation({ lat, lon, city, address: loc.display_name || city });
 
           message.success(`Location detected: ${city}`);
           onSelectLocation(city);
@@ -106,6 +108,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
   };
 
   const handleSelect = (value: string) => {
+    setCachedLocation({ city: value, address: value });
     onSelectLocation(value);
     setSearchValue("");
     setOptions([]);
@@ -113,6 +116,7 @@ const LocationPopup = ({ open, onClose, onSelectLocation }: Props) => {
   };
 
   const handleCityClick = (city: string) => {
+    setCachedLocation({ city, address: city });
     onSelectLocation(city);
     onClose();
   };

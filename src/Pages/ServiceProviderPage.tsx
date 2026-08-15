@@ -1,5 +1,18 @@
-import { useRef, useState, useEffect } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import React, { useRef, useState, useEffect } from "react";
+import { Button, Input, Collapse } from "antd";
+import { motion } from "framer-motion";
+import {
+  Sparkles,
+  CheckCircle2,
+  ShieldCheck,
+  Clock,
+  MapPin,
+  IndianRupee,
+  LocateFixed,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
+
 import chef from "../assets/card-chef.png";
 import cleaning from "../assets/card-cleaning.png";
 import salon from "../assets/card-salon.png";
@@ -7,326 +20,604 @@ import laundry from "../assets/card-laundry.png";
 import plumber from "../assets/card-plumber.png";
 import ac from "../assets/card-ac.png";
 
-import bg from "../assets/services-banner.png";
-import { Button, Input } from "antd";
-
-import Footer from '../Components/Footer'
-
+import Footer from "../Components/Footer";
 import ServiceProviderForm from "../Components/ServiceProviderForm";
+import { useTheme } from "../Context/ThemeContext";
 
-const cards = [
+const serviceCards = [
   {
-    bg: "bg-[#E8F1FF]",
-    title: "From your kitchen to trusted homes",
-    subtitle: "Your food creates smiles. We create opportunities.",
-    btn: "Join as Chef",
-    image: chef,
-  },
-  {
-    bg: "bg-[#F3E8FF]",
-    title: "Serve your neighborhood",
-    subtitle: "Turn your expertise into steady local income",
-    btn: "Get started",
-    image: salon,
-  },
-  {
-    bg: "bg-[#FFF3D6]",
-    title: "Every clean space brings peace",
-    subtitle: "Turn cleaning skills into steady local income",
-    btn: "Join now",
-    image: cleaning,
-  },
-  {
-    bg: "bg-[#E6FAF0]",
-    title: "Kapdon ka khayal, bilkul ghar jaisa",
-    subtitle: "Safe, clean and trusted laundry services",
-    btn: "Join now",
-    image: laundry,
-  },
-  {
-    bg: "bg-[#FFE8E8]",
-    title: "Problems fixed. Peace restored.",
-    subtitle: "Trusted local plumbing services for every home",
-    btn: "Join as Plumber",
+    category: "plumber",
+    title: "Plumbing Specialist",
+    subtitle: "Pipe leakage, tap repairs & bathroom installations",
+    earning: "₹1,200 - ₹2,500 / day",
+    tag: "High Demand",
+    color: "from-blue-500 to-cyan-500",
+    bg: "bg-blue-50/70 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40",
     image: plumber,
   },
   {
-    bg: "bg-[#E8F7FF]",
-    title: "Comfort fixed. Connections secured.",
-    subtitle: "Expert AC, RO & Wi-Fi installation and repair",
-    btn: "Join as Tech Expert",
+    category: "electrician",
+    title: "Electrician Expert",
+    subtitle: "Wiring, switchboards, fans, MCB & inverter repairs",
+    earning: "₹1,500 - ₹3,000 / day",
+    tag: "Top Earner",
+    color: "from-amber-500 to-yellow-500",
+    bg: "bg-amber-50/70 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40",
     image: ac,
+  },
+  {
+    category: "maid",
+    title: "Home Deep Cleaning",
+    subtitle: "Full house cleaning, kitchen, sofa & bathroom scrubbing",
+    earning: "₹1,000 - ₹2,200 / day",
+    tag: "Steady Jobs",
+    color: "from-emerald-500 to-teal-500",
+    bg: "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/40",
+    image: cleaning,
+  },
+  {
+    category: "salon_women",
+    title: "Salon & Beauty Pro",
+    subtitle: "Hair styling, waxing, facial & bridal makeup at home",
+    earning: "₹2,000 - ₹4,500 / day",
+    tag: "High Margin",
+    color: "from-pink-500 to-rose-500",
+    bg: "bg-pink-50/70 dark:bg-pink-950/30 border-pink-100 dark:border-pink-900/40",
+    image: salon,
+  },
+  {
+    category: "cook",
+    title: "Home Chef & Cook",
+    subtitle: "Daily meals, party preparation & dietary catering",
+    earning: "₹1,200 - ₹2,800 / day",
+    tag: "Repeat Clients",
+    color: "from-orange-500 to-red-500",
+    bg: "bg-orange-50/70 dark:bg-orange-950/30 border-orange-100 dark:border-orange-900/40",
+    image: chef,
+  },
+  {
+    category: "carpenter",
+    title: "Master Carpenter",
+    subtitle: "Furniture repair, locks, custom shelving & woodwork",
+    earning: "₹1,400 - ₹2,800 / day",
+    tag: "Popular",
+    color: "from-purple-500 to-indigo-500",
+    bg: "bg-purple-50/70 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/40",
+    image: laundry,
   },
 ];
 
-const ServiceProviderCards = () => {
+const faqs = [
+  {
+    key: "1",
+    label: "Is there any registration fee to join ServEase as a partner?",
+    children:
+      "No! Registration on ServEase is 100% free. We don't charge any upfront setup fees or subscription charges. You can start receiving customer job leads right away.",
+  },
+  {
+    key: "2",
+    label: "How and when do I get paid for completed jobs?",
+    children:
+      "You receive payments directly from the customer via cash or UPI immediately upon completing the service. For direct platform bookings, payments are securely credited to your registered bank account.",
+  },
+  {
+    key: "3",
+    label: "Can I choose my own working hours and service locations?",
+    children:
+      "Yes! You are your own boss. You can set your availability status, select your operating radius (e.g., within 5-10 km of your area), and accept or decline requests based on your schedule.",
+  },
+  {
+    key: "4",
+    label: "What documents do I need to get verified?",
+    children:
+      "You only need a government-issued ID proof (Aadhaar Card, PAN Card, or Driving License) and a clear profile photo. Verification is completed quickly so you can start taking jobs.",
+  },
+  {
+    key: "5",
+    label: "How does the customer bidding and direct booking system work?",
+    children:
+      "Customers post jobs with their problem details and budget range. You can view all nearby open requests and submit your price quote and estimated timeline, or customers can book you directly based on your visiting fee.",
+  },
+];
+
+const ServiceProviderPage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
+  const [canNext, setCanNext] = useState(true);
   const [openForm, setOpenForm] = useState(false);
+  const [locationInput, setLocationInput] = useState("");
+  const [detectingLoc, setDetectingLoc] = useState(false);
+
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const updateButtons = () => {
     const el = containerRef.current;
     if (!el) return;
-    setCanPrev(el.scrollLeft > 0);
-    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 5);
+    setCanPrev(el.scrollLeft > 10);
+    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
   };
 
   const scrollNext = () => {
     containerRef.current?.scrollBy({
-      left: containerRef.current.clientWidth,
+      left: 360,
       behavior: "smooth",
     });
   };
 
   const scrollPrev = () => {
     containerRef.current?.scrollBy({
-      left: -containerRef.current.clientWidth,
+      left: -360,
       behavior: "smooth",
     });
   };
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    updateButtons();
-    el.addEventListener("scroll", updateButtons);
-    window.addEventListener("resize", updateButtons);
-    return () => {
-      el.removeEventListener("scroll", updateButtons);
-      window.removeEventListener("resize", updateButtons);
-    };
+    const stored = localStorage.getItem("userLocation");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.city) setLocationInput(parsed.city);
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, []);
 
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) return;
+    setDetectingLoc(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          );
+          const data = await res.json();
+          const city =
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.suburb ||
+            data.address?.county ||
+            "Current City";
+          setLocationInput(city);
+          localStorage.setItem(
+            "userLocation",
+            JSON.stringify({ lat, lon, city })
+          );
+        } catch {
+          setLocationInput("Local Area");
+        } finally {
+          setDetectingLoc(false);
+        }
+      },
+      () => setDetectingLoc(false)
+    );
+  };
+
   return (
-    <div className="flex flex-col bg-white dark:bg-slate-950 transition-colors duration-500">
-      {/* HERO */}
-      <div className="md:relative w-full flex justify-center md:justify-end md:h-[50vh] overflow-hidden bg-white dark:bg-slate-900 transition-colors">
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-slate-950 text-slate-100" : "bg-white text-slate-800"}`}>
 
-        {/* LEFT CONTENT */}
-        <div className="z-10 md:absolute left-0 p-3 md:pl-5">
-          <div className="text-3xl sm:pt-10 sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white leading-tight text-center md:text-left md:pl-14 md:pt-5 transition-colors">
-            Become a Service Provider
-          </div>
+      {/* ================= HERO BANNER SECTION ================= */}
+      <section className="relative overflow-hidden pt-8 pb-16 sm:py-20 border-b dark:border-slate-800/80 bg-gradient-to-b from-blue-50/60 via-white to-transparent dark:from-slate-900/60 dark:via-slate-950 dark:to-slate-950">
+        
+        {/* Background glow effects */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          
-          <p className="mt-5 text-base lg:pt-2 sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl text-center md:text-left md:pl-16 transition-colors">
-            Offer local services, earn on your terms, and connect with customers nearby. Flexible schedules, steady opportunities, and real income growth—all in your area.
-          </p>
-
-          <div className="mt-3 flex flex-col lg:pt-5 sm:flex-row gap-3 max-w-xl md:pl-16">
-            <Input placeholder="📍 Enter your location..." className="dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => setOpenForm(true)}
-              className="font-bold"
-            >
-              Join Us
-            </Button>
-          </div>
-        </div>
-
-        {/* CENTER UX — REGISTRATION PREVIEW */}
-        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-xl px-6 py-5 w-70 border border-white/20 dark:border-slate-700/50 transition-colors">
-            <p className="text-sm font-bold text-slate-900 dark:text-white mb-3">
-              Registration takes only a few steps
-            </p>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-bold">
-                ✔ Location
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Join India&apos;s Fastest Growing Home Services Network</span>
               </div>
-              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Select Service</div>
-              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Upload Documents</div>
-              <div className="text-slate-500 dark:text-slate-400 font-medium">→ Start Accepting Jobs</div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight leading-[1.15]">
+                Turn Your Expertise Into <br className="hidden sm:inline" />
+                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 bg-clip-text text-transparent">
+                  Steady Daily Income
+                </span>
+              </h1>
+
+              <p className={`text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                Connect directly with nearby customers who need your skills. Set your own visiting fees, receive verified local leads, and get paid immediately.
+              </p>
+
+              {/* Quick Location & Join Action */}
+              <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto lg:mx-0 pt-2">
+                <div className="relative flex-1">
+                  <Input
+                    size="large"
+                    value={locationInput}
+                    onChange={(e) => setLocationInput(e.target.value)}
+                    placeholder="Enter your service city/area..."
+                    prefix={<MapPin className="w-4 h-4 text-slate-400 mr-1" />}
+                    suffix={
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        title="Auto-detect GPS location"
+                      >
+                        <LocateFixed className={`w-3.5 h-3.5 ${detectingLoc ? "animate-spin" : ""}`} />
+                        <span className="hidden sm:inline">GPS</span>
+                      </button>
+                    }
+                    className="h-12 rounded-xl text-sm font-medium"
+                  />
+                </div>
+
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => setOpenForm(true)}
+                  className="h-12 px-8 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 border-none text-base"
+                >
+                  Join Us Now &rarr;
+                </Button>
+              </div>
+
+              {/* Key Highlights Micro-Pills */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-3 text-xs font-bold text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Zero Registration Fee</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Local Leads Only (No long travel)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Direct Customer Payments</span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t dark:border-slate-700 text-[10px] text-slate-600 dark:text-slate-400 flex justify-between font-bold">
-              <span>🕒 Flexible</span>
-              <span>💸 Earn per Job</span>
-              <span>🧾 Easy KYC</span>
+            {/* Right Card / Visual Showcase */}
+            <div className="lg:col-span-5 relative flex justify-center">
+              <div className={`w-full max-w-md p-6 sm:p-7 rounded-3xl border shadow-2xl relative backdrop-blur-xl ${isDark ? "bg-slate-900/90 border-slate-800" : "bg-white/90 border-slate-200"}`}>
+                
+                {/* Floating Badge */}
+                <div className="absolute -top-3 right-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded-full shadow-md">
+                  ★ Fast Approval
+                </div>
+
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-extrabold text-xl">
+                    ⚡
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base leading-snug">
+                      Partner Onboarding
+                    </h3>
+                    <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Takes less than 2 minutes to complete
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stepper overview */}
+                <div className="space-y-3.5 mb-6">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-50/50 dark:bg-slate-800/60 border border-blue-100/60 dark:border-slate-700/60">
+                    <span className="w-6 h-6 rounded-lg bg-blue-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      1
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        Create Your Skills Profile
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Select your profession (Plumbing, Electrical, Cleaning, AC, Salon, etc.)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-50/50 dark:bg-slate-800/60 border border-emerald-100/60 dark:border-slate-700/60">
+                    <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        Set Your Visiting Fee &amp; Area
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Define your base charges and preferred operating radius
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-purple-50/50 dark:bg-slate-800/60 border border-purple-100/60 dark:border-slate-700/60">
+                    <span className="w-6 h-6 rounded-lg bg-purple-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      3
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        Accept Leads &amp; Start Earning
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Submit price quotes or take direct customer bookings
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  block
+                  type="primary"
+                  size="large"
+                  onClick={() => setOpenForm(true)}
+                  className="rounded-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 border-none shadow-md"
+                >
+                  Start Registration &rarr;
+                </Button>
+              </div>
             </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ================= SERVICE TRADES & EARNING CAROUSEL ================= */}
+      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+              Top Categories
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+              Popular Service Professions
+            </h2>
+            <p className={`text-sm sm:text-base mt-1.5 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+              Click on your trade to get started with tailored customer leads in your city.
+            </p>
+          </div>
+
+          {/* Carousel Arrows */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <button
+              onClick={scrollPrev}
+              disabled={!canPrev}
+              className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                canPrev
+                  ? "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500 text-slate-700 dark:text-slate-200 shadow-sm"
+                  : "opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-800 text-slate-400"
+              }`}
+              title="Previous services"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={scrollNext}
+              disabled={!canNext}
+              className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                canNext
+                  ? "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500 text-slate-700 dark:text-slate-200 shadow-sm"
+                  : "opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-800 text-slate-400"
+              }`}
+              title="Next services"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        {/* IMAGE */}
-        <img src={bg} alt="" className="hidden md:block h-full object-cover dark:opacity-60 transition-opacity" />
-
-        {/* BLEND OVERLAY */}
-        <div className="absolute inset-0 pointer-events-none hidden md:block">
-          <div className="absolute inset-0 bg-gradient-to-r from-white dark:from-slate-950 via-white/80 dark:via-slate-950/80 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-white/5 dark:via-slate-950/5 to-transparent" />
-        </div>
-      </div>
-
-      {/* SERVICE CARDS */}
-      <div className="relative w-full px-4 mt-8">
-        <button
-          onClick={scrollPrev}
-          disabled={!canPrev}
-          className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900 rounded-full p-4 z-10 dark:text-white disabled:opacity-30 border border-transparent dark:border-slate-700 transition-all hover:scale-110"
-        >
-          <FaArrowLeft />
-        </button>
-
-        <button
-          onClick={scrollNext}
-          disabled={!canNext}
-          className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900 rounded-full p-4 z-10 dark:text-white disabled:opacity-30 border border-transparent dark:border-slate-700 transition-all hover:scale-110"
-        >
-          <FaArrowRight />
-        </button>
-
+        {/* Scrollable Cards Container */}
         <div
           ref={containerRef}
-          className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide py-4"
+          onScroll={updateButtons}
+          className="flex gap-5 overflow-x-auto scroll-smooth scrollbar-hide pb-4 pt-1"
         >
-          {cards.map((card, i) => (
-            <div
-              key={i}
-              className={`min-w-[90%] sm:min-w-[60%] md:min-w-[50%] lg:min-w-[30%] rounded-[24px] ${card.bg} dark:bg-slate-900/40 dark:border dark:border-slate-800 flex justify-between items-end overflow-hidden group hover:shadow-xl transition-all duration-300`}
+          {serviceCards.map((card) => (
+            <motion.div
+              key={card.title}
+              whileHover={{ y: -5 }}
+              onClick={() => setOpenForm(true)}
+              className={`min-w-[280px] sm:min-w-[340px] md:min-w-[360px] p-6 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col justify-between group shadow-sm hover:shadow-xl ${card.bg}`}
             >
-              <div className="p-8 max-w-[65%]">
-                <h3 className="font-bold text-slate-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{card.title}</h3>
-                <p className="text-sm text-slate-700 dark:text-slate-400 mt-2 font-medium">
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase bg-white/90 dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-xs border border-white/40 dark:border-slate-700">
+                    {card.tag}
+                  </span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    {card.earning}
+                  </span>
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-bold mb-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {card.title}
+                </h3>
+                <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                   {card.subtitle}
                 </p>
               </div>
-              <img src={card.image} className="w-40 h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
+
+              <div className="flex items-center justify-between pt-6 mt-4 border-t border-black/5 dark:border-white/5">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:underline">
+                  Join as {card.title.split(" ")[0]} &rarr;
+                </span>
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= WHY SERVEASE IS BEST FOR PARTNERS ================= */}
+      <section className={`py-16 sm:py-20 border-y dark:border-slate-800 transition-colors ${isDark ? "bg-slate-900/50" : "bg-slate-50/70"}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+          
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+              Partner Advantages
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+              Why 15,000+ Professionals Trust ServEase
+            </h2>
+            <p className={`text-sm sm:text-base mt-2 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+              Built to help independent technicians, contractors, and service workers grow their customer base with zero friction.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: MapPin,
+                title: "Hyper-Local Leads",
+                desc: "Get requests from customers within a 5-10 km radius of your home. No wasted commute.",
+                color: "text-rose-500 bg-rose-500/10",
+              },
+              {
+                icon: IndianRupee,
+                title: "You Choose Your Rates",
+                desc: "Set your own visiting fee and submit custom price bids directly to customers.",
+                color: "text-emerald-500 bg-emerald-500/10",
+              },
+              {
+                icon: Clock,
+                title: "Flexible Working Hours",
+                desc: "Work full-time or part-time. Toggle your availability on/off whenever you want.",
+                color: "text-purple-500 bg-purple-500/10",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Verified Customers Only",
+                desc: "Deal only with real, phone-verified customers in your neighborhood.",
+                color: "text-blue-500 bg-blue-500/10",
+              },
+            ].map((perk, i) => {
+              const Icon = perk.icon;
+              return (
+                <div
+                  key={i}
+                  className={`p-6 rounded-3xl border transition-all duration-300 hover:shadow-lg ${
+                    isDark
+                      ? "bg-slate-900 border-slate-800 hover:border-slate-700"
+                      : "bg-white border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${perk.color}`}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-base sm:text-lg mb-1.5">
+                    {perk.title}
+                  </h3>
+                  <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    {perk.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ================= ESTIMATED MONTHLY EARNINGS ================= */}
+      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block mb-1">
+            Income Potential
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+            How Much Can You Earn Each Month?
+          </h2>
+          <p className={`text-sm sm:text-base mt-2 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            Earnings based on active service partners completing 2 to 4 service bookings daily.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {[
+            { profession: "❄️ AC & Appliance Tech", monthly: "₹35,000 - ₹65,000", perJob: "₹500 - ₹1,500 / job" },
+            { profession: "🔧 Master Plumber", monthly: "₹30,000 - ₹55,000", perJob: "₹300 - ₹1,200 / job" },
+            { profession: "⚡ Certified Electrician", monthly: "₹32,000 - ₹58,000", perJob: "₹300 - ₹1,000 / job" },
+            { profession: "🧹 Deep Cleaning Pro", monthly: "₹28,000 - ₹50,000", perJob: "₹800 - ₹2,500 / job" },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`p-5 sm:p-6 rounded-3xl border text-center transition-all duration-300 hover:shadow-md ${
+                isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"
+              }`}
+            >
+              <h4 className="font-bold text-sm sm:text-base mb-2">
+                {item.profession}
+              </h4>
+              <p className="text-lg sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mb-1">
+                {item.monthly}
+              </p>
+              <span className="text-[11px] font-semibold text-slate-400 block">
+                avg. {item.perJob}
+              </span>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
+      {/* ================= FREQUENTLY ASKED QUESTIONS ================= */}
+      <section className={`py-16 sm:py-20 border-t dark:border-slate-800 ${isDark ? "bg-slate-900/30" : "bg-slate-50/50"}`}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block mb-1">
+              Got Questions?
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          <Collapse
+            items={faqs}
+            defaultActiveKey={["1"]}
+            bordered={false}
+            className={`rounded-2xl overflow-hidden shadow-xs border ${
+              isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"
+            }`}
+          />
+        </div>
+      </section>
+
+      {/* ================= BOTTOM CTA BANNER ================= */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 text-white relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+          <div className="space-y-2 max-w-xl">
+            <h3 className="text-2xl sm:text-3xl font-black leading-tight">
+              Ready to Expand Your Service Business?
+            </h3>
+            <p className="text-blue-100 text-sm sm:text-base leading-relaxed">
+              Register now in 2 minutes. Start receiving nearby customer requests today.
+            </p>
+          </div>
+
+          <Button
+            size="large"
+            onClick={() => setOpenForm(true)}
+            className="h-14 px-8 rounded-2xl font-black bg-white text-blue-600 hover:bg-blue-50 border-none shadow-xl text-base shrink-0"
+          >
+            Become a Partner Now &rarr;
+          </Button>
+        </div>
+      </section>
+
+      {/* POPUP REGISTRATION MODAL */}
       <ServiceProviderForm
         onOpen={openForm}
         onClose={() => setOpenForm(false)}
       />
 
-      {/* WHY JOIN SERVEASE */}
-      <section className="w-full py-16 mt-10 relative overflow-hidden transition-colors">
-        {/* background gradient */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900" />
-
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">
-            Why Join ServEase?
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: "🧑‍💼",
-                title: "Local Customers Only",
-                desc: "Nearby jobs, no long travel",
-                gradient: "from-blue-200/40 to-blue-100/10 dark:from-blue-600/20 dark:to-blue-600/5",
-              },
-              {
-                icon: "💸",
-                title: "Jitna Kaam, Utni Kamai",
-                desc: "No fixed salary, earn per service",
-                gradient: "from-emerald-200/40 to-emerald-100/10 dark:from-emerald-600/20 dark:to-emerald-600/5",
-              },
-              {
-                icon: "⏰",
-                title: "Work on Your Schedule",
-                desc: "Accept or reject jobs anytime",
-                gradient: "from-purple-200/40 to-purple-100/10 dark:from-purple-600/20 dark:to-purple-600/5",
-              },
-              {
-                icon: "🛡️",
-                title: "Safe & Verified Leads",
-                desc: "Real customers only",
-                gradient: "from-amber-200/40 to-amber-100/10 dark:from-amber-600/20 dark:to-amber-600/5",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="
-            group
-            relative
-            rounded-[22px]
-            p-8
-            backdrop-blur-xl
-            bg-white/50 dark:bg-slate-900/50
-            border border-white/40 dark:border-slate-800/50
-            shadow-xl dark:shadow-slate-950/50
-            transition-all
-            duration-300
-            hover:-translate-y-2
-          "
-              >
-                {/* gradient overlay */}
-                <div
-                  className={`absolute inset-0 rounded-[22px] bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition duration-500`}
-                />
-
-                <div className="relative z-10 text-center sm:text-left">
-                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform">{item.icon}</div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* EARNINGS PREVIEW */}
-      <section className="w-full py-16 bg-white dark:bg-slate-950 transition-colors">
-        <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-900 dark:text-white mb-10">
-            How Much Can You Earn?
-          </h2>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { service: "🧹 Cleaning", earning: "₹800–1.5k / day*" },
-              { service: "🔧 Plumbing", earning: "₹1.2k–2k / day*" },
-              { service: "❄️ AC Repair", earning: "₹1.5k+ / day*" },
-              { service: "👨‍🍳 Chef", earning: "₹1k+ / day*" },
-            ].map((item) => (
-              <div
-                key={item.service}
-                className="
-            bg-white dark:bg-slate-900
-            rounded-2xl
-            border border-slate-200 dark:border-slate-800
-            px-4 py-8
-            text-center
-            hover:shadow-xl dark:hover:shadow-slate-900/50
-            hover:-translate-y-1
-            transition-all
-            duration-300
-          "
-              >
-                <p className="text-base font-bold text-slate-900 dark:text-gray-200">
-                  {item.service}
-                </p>
-                <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-                  {item.earning}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-center text-slate-500 dark:text-slate-500 mt-8 italic font-medium">
-            *Earnings depend on number of services completed
-          </p>
-        </div>
-      </section>
-
       <Footer />
-
     </div>
   );
 };
 
-export default ServiceProviderCards;
+export default ServiceProviderPage;

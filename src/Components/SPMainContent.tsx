@@ -1,315 +1,314 @@
-import React, { useState, useEffect } from "react";
-import { HiMenu } from "react-icons/hi";
-import { ShoppingCart } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  Star,
+  ShieldCheck,
+  Clock,
+  Briefcase,
+  Languages,
+  Eye,
+  Check,
+  PlusCircle,
+  LayoutGrid,
+  List,
+  ArrowRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Modal } from "antd";
 
 import { useCart } from "../Context/CartContext";
+import { usePostJob } from "./PostJobModal";
 
 interface Props {
   onOpenFilters?: () => void;
-  filters: { category: string; service: string; search: string };
+  filters: {
+    category: string;
+    service: string;
+    search: string;
+    maxBudget?: number;
+    minRating?: number;
+    [key: string]: any;
+  };
 }
 
-const services = [
-  { title: "AC Repair & Servicing", rating: "4.7", bookings: "1,200+", price: "₹299" },
-  { title: "Electrician Services", rating: "4.6", bookings: "980+", price: "₹199" },
-  { title: "Home Cleaning", rating: "4.8", bookings: "2,300+", price: "₹399" },
-  { title: "Plumbing Services", rating: "4.5", bookings: "870+", price: "₹149" },
-  { title: "Carpenter Services", rating: "4.4", bookings: "640+", price: "₹249" },
-];
+/* ================= COMPACT PROVIDER CARD (HORIZONTAL / SLIM) ================= */
 
-import { IoLocationOutline, IoTimeOutline, IoBookmarkOutline, IoBriefcaseOutline, IoChatbubbleEllipsesOutline } from "react-icons/io5";
+interface ProviderCardProps {
+  data: any;
+  viewMode: "compact" | "grid";
+  onOpenDetails: (provider: any) => void;
+}
 
-const ProviderCard = ({ data }: any) => {
-  const { cart, addToCart } = useCart();
-  const [added, setAdded] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const ProviderCard: React.FC<ProviderCardProps> = ({ data, viewMode, onOpenDetails }) => {
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
-  const isAlreadyInCart = cart.some((item: any) => item.id === data._id);
-
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const cartItem = {
       id: data._id,
-      title: `${data.firstName} ${data.lastName} - ${data.category}`,
-      price: data.fee,
+      title: `${data.firstName || "Pro"} ${data.lastName || ""} - ${data.category || "Service"}`,
+      price: data.fee || 299,
       quantity: 1,
-      image: "",
+      image: data.profilePhoto || "",
     };
     addToCart(cartItem);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1000);
+    navigate("/cart");
   };
 
   const profileImage = data.profilePhoto
     ? `http://localhost:5000/api/provider/file/${data.profilePhoto}`
     : "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600&auto=format&fit=crop";
 
-  return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-4 rounded-[24px] hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all duration-300 shadow flex flex-col w-full h-full relative">
+  const formattedCategory = (data.category || "Specialist").replace(/_/g, " ");
 
-      {/* Top Image Box */}
-      <div className="relative w-full aspect-[4/3] sm:aspect-[3/2] rounded-[16px] overflow-hidden mb-4 bg-slate-100 dark:bg-slate-800">
-        <img
-          src={profileImage}
-          alt="Provider Work"
-          className="w-full h-full object-cover dark:brightness-90"
-        />
-        {/* Bookmark Icon */}
-        <button className="absolute top-4 right-4 text-white hover:text-orange-400 transition-colors">
-          <IoBookmarkOutline size={26} />
-        </button>
-      </div>
-
-      {/* Info Content Container to fill space */}
-      <div className="flex flex-col flex-1 px-1">
-
-        {/* Title & Rating */}
-        <div className="flex justify-between items-start mb-1 gap-2">
-          <h2 className="text-[20px] font-semibold text-slate-800 dark:text-white leading-tight">
-            {data.firstName} {data.lastName} <span className="text-gray-500 dark:text-gray-400 font-normal text-[16px]">({data.category})</span>
-          </h2>
-          <div className="flex items-center gap-1 text-[14px] font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-sm px-2 py-0.5 rounded-full whitespace-nowrap border border-gray-100 dark:border-slate-700">
-            <span className="text-yellow-500">⭐</span> {data.rating || "0.0"}
-          </div>
-        </div>
-
-        {/* Services List */}
-        <div className="flex items-center gap-2 mb-5 flex-wrap">
-          <h4 className="font-bold text-slate-800 dark:text-slate-200 text-[15px]">Services:</h4>
-          <div className="flex flex-wrap gap-2">
-            {data.services && data.services.length > 0 ? (
-              <>
-                {data.services.slice(0, 3).map((srv: string, i: number) => (
-                  <span key={i} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-lg text-[13px] font-bold capitalize">
-                    {srv.replace(/_/g, " ")}
-                  </span>
-                ))}
-                {data.services.length > 3 && (
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-lg text-[13px] font-bold">
-                    +{data.services.length - 3}
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded-lg text-[13px] font-bold capitalize">
-                General Maintenance
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* 3 Icon Rows */}
-        <div className="space-y-3 mb-6 flex-1">
-          {/* Experience */}
-          <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-            <IoBriefcaseOutline size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-[15px] font-medium">{data.experience || 0} Years Experience</span>
-          </div>
-          {/* Languages */}
-          <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-            <IoChatbubbleEllipsesOutline size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-[15px] font-medium">
-              {data.languages && data.languages.length > 0 ? data.languages.join(", ") : "English, Hindi"}
-            </span>
-          </div>
-          {/* Time */}
-          <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-            <IoTimeOutline size={20} className="text-gray-500 dark:text-gray-400" />
-            <span className="text-[15px] font-medium">10:00 AM – 8:00 PM</span>
-          </div>
-        </div>
-
-        {/* Bottom Actions Row */}
-        <div className="flex flex-col mt-auto pt-4 relative gap-3 border-t dark:border-slate-800">
-
-          <div className="flex flex-col">
-            <span className="text-[13px] text-gray-500 dark:text-gray-400 font-medium mb-1">Start from</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-[22px] font-bold text-slate-800 dark:text-white">{data.fee}</span>
-              <span className="text-[15px] font-bold text-slate-800 dark:text-white">₹<span className="text-gray-500 dark:text-gray-400 font-normal text-[13px]">/Visit</span></span>
-            </div>
-          </div>
-
-          <div className="flex gap-2 md:gap-3 w-full mt-1">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex-1 py-2.5 rounded-[12px] text-[14px] lg:text-[15px] font-bold transition-all duration-300 border-2 border-cyan-500 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-900/20"
-            >
-              View Details
-            </button>
-            <button
-              onClick={handleAdd}
-              disabled={isAlreadyInCart}
-              className={`flex-1 py-2.5 rounded-[12px] text-[14px] lg:text-[15px] font-bold transition-all duration-300 shadow hover:shadow-lg
-                ${isAlreadyInCart || added
-                  ? "bg-emerald-500 text-white cursor-not-allowed"
-                  : "bg-cyan-500 hover:bg-cyan-600 text-white active:scale-95"
-                }`}
-            >
-              {isAlreadyInCart ? "Added ✓" : added ? "Added ✓" : "Booking Now"}
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Details Modal */}
-      <Modal
-        title={null}
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={null}
-        centered
-        width={600}
-        styles={{ body: { padding: 0 } }}
-        className="rounded-2xl overflow-hidden custom-details-modal"
-      >
-        <style>{`
-          .custom-details-modal .ant-modal-close {
-            background-color: #ffffff !important;
-            color: #64748b !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
-            border-radius: 50% !important;
-            transition: all 0.3s ease !important;
-            right: 28px !important;
-            top: 20px !important;
-            z-index: 100 !important;
-          }
-          .dark .custom-details-modal .ant-modal-close {
-             background-color: #1e293b !important;
-             color: #94a3b8 !important;
-             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
-             border: 1px solid #334155 !important;
-          }
-          .custom-details-modal .ant-modal-close:hover {
-            background-color: #3b82f6 !important;
-            color: #ffffff !important;
-          }
-          /* Ensure scrollbar has space and doesn't get covered */
-          .custom-details-modal .custom-scrollbar {
-             padding-right: 12px !important;
-          }
-        `}</style>
-        <div className="p-6 max-h-[75vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900 transition-colors duration-300">
-          <div className="flex gap-4 items-start mb-6">
+  // 1. SLIM HORIZONTAL VIEW (Compact)
+  if (viewMode === "compact") {
+    return (
+      <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-3.5 hover:border-blue-500/40 dark:hover:border-blue-500/40 hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row gap-3.5 items-center justify-between">
+        
+        {/* LEFT: THUMBNAIL + BASIC INFO */}
+        <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 w-full sm:w-auto flex-1">
+          {/* Avatar Thumbnail */}
+          <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200/60 dark:border-slate-700">
             <img
               src={profileImage}
-              alt="Provider Work"
-              className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl shadow-sm dark:brightness-90"
+              alt={`${data.firstName} ${data.lastName}`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop";
+              }}
             />
-            <div>
-              <h2 className="text-[24px] font-bold text-slate-800 dark:text-white leading-tight">
-                {data.firstName} {data.lastName}
-              </h2>
-              <div className="text-[16px] text-gray-500 dark:text-gray-400 font-medium capitalize mt-1 mb-2">
-                {data.category}
-              </div>
-              <div className="inline-flex items-center gap-1 text-[14px] font-semibold text-slate-700 dark:text-slate-200 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1 rounded-full border border-yellow-100 dark:border-yellow-900/30">
-                <span className="text-yellow-500">⭐</span> {data.rating || "0.0"} <span className="text-gray-500 dark:text-gray-400 text-[12px] ml-1">({data.totalReviews || 0} reviews)</span>
-              </div>
+            <div className="absolute bottom-0 inset-x-0 bg-slate-900/80 backdrop-blur-xs text-[9px] text-amber-300 font-bold flex items-center justify-center gap-0.5 py-0.5">
+              <Star size={10} className="fill-amber-400 text-amber-400" />
+              <span>{data.rating ? Number(data.rating).toFixed(1) : "4.8"}</span>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Services */}
-            <div>
-              <h3 className="text-[17px] font-bold text-slate-800 dark:text-white mb-2">Services Offered</h3>
-              <div className="flex flex-wrap gap-2">
-                {data.services && data.services.length > 0 ? (
-                  data.services.map((srv: string, i: number) => (
-                    <span key={i} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-lg text-[14px] font-semibold capitalize">
+          {/* Core Info */}
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug truncate">
+                {data.firstName} {data.lastName}
+              </h3>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/40 uppercase tracking-wider">
+                {formattedCategory}
+              </span>
+              <span className="hidden md:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Available Today
+              </span>
+            </div>
+
+            {/* Micro Metadata Strip */}
+            <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1">
+                <Briefcase size={12} className="text-slate-400" />
+                <span>{data.experience || 3}+ Yrs Exp</span>
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1 truncate">
+                <Languages size={12} className="text-slate-400" />
+                <span className="truncate">
+                  {data.languages && data.languages.length > 0
+                    ? data.languages.slice(0, 2).join(", ")
+                    : "Eng, Hindi"}
+                </span>
+              </span>
+              <span>•</span>
+              <span className="hidden lg:inline-flex items-center gap-1">
+                <Clock size={12} className="text-slate-400" />
+                <span>10 AM–8 PM</span>
+              </span>
+            </div>
+
+            {/* Quick Skills Pills */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              {data.services && data.services.length > 0 ? (
+                <>
+                  {data.services.slice(0, 2).map((srv: string, i: number) => (
+                    <span
+                      key={i}
+                      className="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded capitalize"
+                    >
                       {srv.replace(/_/g, " ")}
                     </span>
-                  ))
-                ) : (
-                  <span className="text-gray-500 dark:text-gray-400 italic text-[14px]">General Maintenance</span>
-                )}
-              </div>
+                  ))}
+                  {data.services.length > 2 && (
+                    <span className="text-[10px] text-slate-400">
+                      +{data.services.length - 2} more
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[10px] text-slate-400 italic">General Maintenance</span>
+              )}
             </div>
+          </div>
+        </div>
 
-            {/* Bio / Description */}
-            <div>
-              <h3 className="text-[17px] font-bold text-slate-800 dark:text-white mb-2">About Provider</h3>
-              <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed bg-gray-50 dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
-                {data.bio || "This professional is dedicated to providing high-quality service and making sure your exact needs are met. Experienced and verified."}
-              </p>
-            </div>
+        {/* RIGHT: PRICING & DIRECT BOOKING ACTION */}
+        <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800 flex-shrink-0 gap-2 sm:gap-1.5 sm:pl-3 sm:border-l dark:border-slate-800">
+          <div className="text-left sm:text-right">
+            <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 block leading-none">
+              Visiting Fee
+            </span>
+            <span className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+              ₹{data.fee || 299}
+            </span>
+          </div>
 
-            {/* Quick Details Grid */}
-            <div className="grid grid-cols-2 gap-4 bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
-              <div>
-                <span className="block text-[13px] text-gray-500 dark:text-gray-400 mb-1 font-medium">Visiting Fee</span>
-                <span className="text-[18px] font-bold text-slate-800 dark:text-white">₹{data.fee}</span>
-              </div>
-              <div>
-                <span className="block text-[13px] text-gray-500 dark:text-gray-400 mb-1 font-medium">Availability</span>
-                <span className="text-[15px] font-bold text-slate-800 dark:text-white">10:00 AM – 8:00 PM</span>
-              </div>
-              <div className="col-span-2">
-                <span className="block text-[13px] text-gray-500 dark:text-gray-400 mb-1 font-medium">Service Area Range</span>
-                <div className="flex items-center gap-2">
-                  <IoLocationOutline size={18} className="text-cyan-600 dark:text-cyan-400" />
-                  <span className="text-[15px] font-bold text-slate-800 dark:text-slate-200">
-                    Available within 5-10 km of {data.address ? (data.address.split(',').length > 1 ? data.address.split(',')[data.address.split(',').length - 2].trim() : data.address) : "Local Area"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Bottom CTA */}
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={() => {
-                if (!isAlreadyInCart) {
-                  handleAdd();
-                }
-                setIsModalOpen(false); // Close modal when returning
-              }}
-              disabled={isAlreadyInCart}
-              className={`w-full py-4 rounded-xl text-[16px] font-bold transition-all shadow-md mt-4
-                ${isAlreadyInCart || added
-                  ? "bg-emerald-500 text-white cursor-not-allowed"
-                  : "bg-cyan-500 hover:bg-cyan-600 text-white"
-                }`}
+              type="button"
+              onClick={() => onOpenDetails(data)}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+              title="Details"
             >
-              {isAlreadyInCart ? "Added to Cart ✓" : added ? "Added to Cart ✓" : "Book This Provider"}
+              <Eye size={14} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+            >
+              <span>Book Now</span>
+              <ArrowRight size={13} />
             </button>
           </div>
         </div>
-      </Modal>
+
+      </div>
+    );
+  }
+
+  // 2. COMPACT GRID VIEW
+  return (
+    <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 hover:border-blue-500/40 dark:hover:border-blue-500/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-3">
+      
+      {/* CARD TOP: AVATAR + TITLE */}
+      <div className="flex items-start gap-3">
+        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200/60 dark:border-slate-700">
+          <img
+            src={profileImage}
+            alt={`${data.firstName} ${data.lastName}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src =
+                "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop";
+            }}
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 uppercase tracking-wider truncate">
+              {formattedCategory}
+            </span>
+            <div className="flex items-center gap-1 text-xs font-bold text-slate-800 dark:text-slate-200">
+              <Star size={12} className="fill-amber-400 text-amber-400" />
+              <span>{data.rating ? Number(data.rating).toFixed(1) : "4.8"}</span>
+            </div>
+          </div>
+
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1 truncate">
+            {data.firstName} {data.lastName}
+          </h3>
+
+          <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <span>{data.experience || 3}+ Yrs Exp</span>
+            <span>•</span>
+            <span className="truncate">
+              {data.languages && data.languages.length > 0 ? data.languages[0] : "English"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* SERVICES PILLS */}
+      <div className="flex flex-wrap gap-1">
+        {data.services && data.services.length > 0 ? (
+          data.services.slice(0, 2).map((s: string, idx: number) => (
+            <span
+              key={idx}
+              className="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded capitalize"
+            >
+              {s.replace(/_/g, " ")}
+            </span>
+          ))
+        ) : (
+          <span className="text-[10px] text-slate-400 italic">General Maintenance</span>
+        )}
+      </div>
+
+      {/* CARD BOTTOM: PRICE & DIRECT BOOK */}
+      <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">
+            Fee
+          </span>
+          <span className="text-base font-extrabold text-slate-900 dark:text-white">
+            ₹{data.fee || 299}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onOpenDetails(data)}
+            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-blue-500 hover:border-blue-500 transition"
+            title="Details"
+          >
+            <Eye size={14} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white active:scale-95 cursor-pointer"
+          >
+            <span>Book</span>
+            <ArrowRight size={12} />
+          </button>
+        </div>
+      </div>
 
     </div>
   );
 };
 
+/* ================= MAIN CONTENT ================= */
 
 const SPMainContent: React.FC<Props> = ({ onOpenFilters, filters }) => {
-  const [openCartPreview, setOpenCartPreview] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<string>("recommended");
+  const [viewMode, setViewMode] = useState<"compact" | "grid">("compact");
 
-  const { cart, total } = useCart();
+  const { addToCart } = useCart();
+  const { openPostJob } = usePostJob();
   const navigate = useNavigate();
 
-  const itemCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-
-  // React Query fetching providers dynamically
-  const { data: searchData, isLoading, isError } = useQuery({
-    queryKey: ['providers-search', filters],
+  // REACT QUERY FETCH PROVIDERS
+  const { data: searchData, isLoading, isError, refetch } = useQuery({
+    queryKey: ["providers-search", filters],
     queryFn: async () => {
-      // Extract User Location implicitly
       const params: Record<string, string> = {};
       const storedLoc = localStorage.getItem("userLocation");
 
       if (storedLoc) {
         try {
           const loc = JSON.parse(storedLoc);
-          if (loc.lat && loc.lon) {
+          if (loc.lat && loc.lng) {
             params.lat = loc.lat;
-            params.lng = loc.lon;
-            params.radius = "20"; // Limit search to 20km locally
+            params.lng = loc.lng;
+            params.radius = "30";
           }
-        } catch (e) { }
+        } catch (e) {}
       }
 
       if (filters.category) params.category = filters.category;
@@ -318,107 +317,355 @@ const SPMainContent: React.FC<Props> = ({ onOpenFilters, filters }) => {
 
       const res = await axios.get("http://localhost:5000/api/provider/search", { params });
       return res.data;
-    }
+    },
+    staleTime: 60 * 1000,
   });
 
-  const providersList = searchData?.providers || [];
+  const rawProviders: any[] = searchData?.providers || [];
+
+  // CLIENT-SIDE FILTER & SORT
+  const filteredAndSortedProviders = useMemo(() => {
+    let list = [...rawProviders];
+
+    // Filter by max budget
+    if (filters.maxBudget && filters.maxBudget < 15000) {
+      list = list.filter((p) => (p.fee || 299) <= filters.maxBudget!);
+    }
+
+    // Filter by rating
+    if (filters.minRating && filters.minRating > 0) {
+      list = list.filter((p) => (p.rating || 4.5) >= filters.minRating!);
+    }
+
+    // Sort
+    if (sortBy === "rating") {
+      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sortBy === "price_asc") {
+      list.sort((a, b) => (a.fee || 299) - (b.fee || 299));
+    } else if (sortBy === "price_desc") {
+      list.sort((a, b) => (b.fee || 299) - (a.fee || 299));
+    } else if (sortBy === "experience") {
+      list.sort((a, b) => (b.experience || 0) - (a.experience || 0));
+    }
+
+    return list;
+  }, [rawProviders, filters.maxBudget, filters.minRating, sortBy]);
+
+  const hasActiveFilters =
+    Boolean(filters.category) ||
+    Boolean(filters.service) ||
+    Boolean(filters.search) ||
+    Boolean(filters.minRating && filters.minRating > 0) ||
+    Boolean(filters.maxBudget && filters.maxBudget < 15000);
 
   return (
-    <div className="space-y-5 px-1 pb-10 transition-colors duration-500">
-
-      {/* FILTER + CART ICON (MOBILE) */}
-      <div className="lg:hidden flex justify-end gap-3 items-center">
-        <button
-          onClick={() => setOpenCartPreview(true)}
-          className="relative p-2 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-lg shadow dark:text-white"
-        >
-          <ShoppingCart size={20} />
-          {itemCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-[10px] h-5 w-5 rounded-full flex items-center justify-center">
-              {itemCount}
+    <div className="space-y-4 transition-colors duration-300">
+      
+      {/* STREAMLINED TOOLBAR */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+        
+        {/* HEADER & MOBILE CONTROLS */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              Verified Professionals
+            </h1>
+            <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40">
+              {isLoading ? "..." : filteredAndSortedProviders.length}
             </span>
-          )}
-        </button>
-
-        <button
-          onClick={onOpenFilters}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow"
-        >
-          <HiMenu size={18} />
-          Filters
-        </button>
-      </div>
-
-      {/* PACKAGES / PROVIDERS LIST */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-800">
-        <h2 className="text-lg md:text-xl font-bold mb-4 text-slate-800 dark:text-white">Available Professionals Near You</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-h-[70vh] overflow-y-auto pr-1">
-          {isLoading ? (
-            <div className="py-10 text-center text-gray-500 dark:text-gray-400">Loading verified professionals...</div>
-          ) : isError ? (
-            <div className="py-10 text-center text-red-500">Failed to load professionals.</div>
-          ) : providersList.length === 0 ? (
-            <div className="py-10 text-center text-gray-500 dark:text-gray-400">No professionals found in your area yet.</div>
-          ) : (
-            providersList.map((provider: any) => (
-              <ProviderCard key={provider._id} data={provider} />
-            ))
-          )}
-        </div>
-
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6">
-          Secure platform • Verified Backgrounds • Safe Payments
-        </p>
-      </div>
-
-      {/* CART POPUP */}
-      <div
-        className={`fixed inset-0 z-50 transition ${openCartPreview ? "pointer-events-auto" : "pointer-events-none"
-          }`}
-      >
-        {openCartPreview && (
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpenCartPreview(false)}
-          />
-        )}
-
-        <div
-          className={`absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 rounded-t-2xl p-5 max-h-[70vh] overflow-y-auto transition-transform duration-300 ${openCartPreview ? "translate-y-0" : "translate-y-full"
-            }`}
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-lg text-slate-800 dark:text-white">Your Bookings</h3>
-            <button onClick={() => setOpenCartPreview(false)} className="text-gray-400 hover:text-red-500 text-xl font-bold">✕</button>
           </div>
 
-          {cart.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-6">Your cart is empty.</p>
-          ) : (
-            <div className="space-y-4 pt-2">
-              {cart.map((item) => (
-                <div key={item.id} className="flex justify-between items-center border-b dark:border-slate-800 pb-3 text-sm">
-                  <div>
-                    <p className="font-semibold text-slate-800 dark:text-white">{item.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Base Fee: ₹{item.price}</p>
-                  </div>
-                  <span className="font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">x{item.quantity}</span>
-                </div>
-              ))}
+          <div className="flex items-center gap-2">
+            {/* VIEW MODE TOGGLE */}
+            <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => setViewMode("compact")}
+                className={`p-1.5 rounded-md transition ${
+                  viewMode === "compact"
+                    ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+                title="Compact List View"
+              >
+                <List size={15} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-md transition ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+                title="Grid View"
+              >
+                <LayoutGrid size={15} />
+              </button>
             </div>
-          )}
 
-          {cart.length > 0 && (
             <button
-              onClick={() => navigate("/cart")}
-              className="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 transition text-white py-3.5 rounded-xl font-semibold shadow-md"
+              type="button"
+              onClick={onOpenFilters}
+              className="lg:hidden flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg"
             >
-              Continue to Booking • ₹{total}
+              <SlidersHorizontal size={13} />
+              <span>Filters</span>
             </button>
-          )}
+          </div>
         </div>
+
+        {/* ACTIVE FILTERS & SORT ROW */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 dark:border-slate-800 text-xs">
+          
+          <div className="flex flex-wrap items-center gap-1.5">
+            {filters.category && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40 capitalize">
+                {filters.category}
+              </span>
+            )}
+            {filters.service && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/40">
+                {filters.service}
+              </span>
+            )}
+            {filters.search && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                "{filters.search}"
+              </span>
+            )}
+            {!hasActiveFilters && (
+              <span className="text-slate-400 dark:text-slate-500 text-[11px]">
+                Showing all available experts
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-auto">
+            <span className="text-[11px] text-slate-400">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-xs font-medium bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
+            >
+              <option value="recommended">Recommended</option>
+              <option value="rating">Top Rated</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="experience">Experience</option>
+            </select>
+          </div>
+        </div>
+
       </div>
+
+      {/* COMPACT LIST / GRID FEED */}
+      <div>
+        {isLoading ? (
+          <div className="space-y-2.5">
+            {[1, 2, 3, 4].map((n) => (
+              <div
+                key={n}
+                className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/80 dark:border-slate-800 animate-pulse flex items-center gap-3"
+              >
+                <div className="w-16 h-16 rounded-xl bg-slate-200 dark:bg-slate-800 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="w-1/3 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="w-1/2 h-3 bg-slate-100 dark:bg-slate-800 rounded" />
+                </div>
+                <div className="w-20 h-8 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 text-center border border-red-200 dark:border-red-900/30 space-y-2">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-white">
+              Unable to load service providers
+            </h3>
+            <button
+              onClick={() => refetch()}
+              className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredAndSortedProviders.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 mx-auto flex items-center justify-center">
+              <Search size={22} />
+            </div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              No specialists matched your criteria
+            </h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              Try adjusting your filter parameters or post a custom job for free.
+            </p>
+            <button
+              type="button"
+              onClick={() => openPostJob()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5"
+            >
+              <PlusCircle size={14} />
+              <span>Post a Job Free</span>
+            </button>
+          </div>
+        ) : (
+          <div
+            className={
+              viewMode === "compact"
+                ? "space-y-2.5"
+                : "grid grid-cols-1 md:grid-cols-2 gap-3"
+            }
+          >
+            {filteredAndSortedProviders.map((provider) => (
+              <ProviderCard
+                key={provider._id}
+                data={provider}
+                viewMode={viewMode}
+                onOpenDetails={(p) => setSelectedProvider(p)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ================= DETAILED MODAL ================= */}
+      {selectedProvider && (
+        <Modal
+          title={null}
+          open={Boolean(selectedProvider)}
+          onCancel={() => setSelectedProvider(null)}
+          footer={null}
+          centered
+          width={580}
+          styles={{ body: { padding: 0 } }}
+          className="custom-details-modal overflow-hidden rounded-2xl"
+        >
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-5 space-y-4">
+            
+            {/* MODAL HEADER */}
+            <div className="flex items-start gap-3.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                <img
+                  src={
+                    selectedProvider.profilePhoto
+                      ? `http://localhost:5000/api/provider/file/${selectedProvider.profilePhoto}`
+                      : "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600&auto=format&fit=crop"
+                  }
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate">
+                    {selectedProvider.firstName} {selectedProvider.lastName}
+                  </h2>
+                  <ShieldCheck size={16} className="text-emerald-500" />
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold capitalize mt-0.5">
+                  {selectedProvider.category?.replace(/_/g, " ")} Specialist
+                </p>
+                <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 mt-1">
+                  <Star size={13} className="fill-amber-400 text-amber-400" />
+                  <span>{selectedProvider.rating ? Number(selectedProvider.rating).toFixed(1) : "4.8"}</span>
+                  <span className="text-[11px] text-slate-400 font-normal">
+                    ({selectedProvider.totalReviews || 48} reviews)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* QUICK STATS */}
+            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-center text-xs">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400">Exp</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5">
+                  {selectedProvider.experience || 3}+ Yrs
+                </p>
+              </div>
+              <div className="border-x border-slate-200 dark:border-slate-700">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Visiting Fee</span>
+                <p className="font-bold text-blue-600 dark:text-blue-400 mt-0.5">
+                  ₹{selectedProvider.fee || 299}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400">Languages</span>
+                <p className="font-bold text-slate-800 dark:text-slate-100 mt-0.5 truncate px-1">
+                  {selectedProvider.languages?.join(", ") || "Eng, Hindi"}
+                </p>
+              </div>
+            </div>
+
+            {/* ABOUT */}
+            <div className="space-y-1">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                About Professional
+              </h4>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/30 p-3 rounded-lg">
+                {selectedProvider.bio ||
+                  "Dedicated and verified specialist offering reliable in-home service, prompt arrival, and guaranteed customer satisfaction."}
+              </p>
+            </div>
+
+            {/* SERVICES */}
+            <div className="space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Offered Skills & Services
+              </h4>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedProvider.services && selectedProvider.services.length > 0 ? (
+                  selectedProvider.services.map((s: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold capitalize"
+                    >
+                      <Check size={12} className="text-blue-500" />
+                      <span>{s.replace(/_/g, " ")}</span>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-400 italic">General Maintenance</span>
+                )}
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <span className="text-[9px] uppercase font-bold text-slate-400 block">Visiting Fee</span>
+                <span className="text-lg font-extrabold text-slate-900 dark:text-white">
+                  ₹{selectedProvider.fee || 299}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const item = {
+                    id: selectedProvider._id,
+                    title: `${selectedProvider.firstName} ${selectedProvider.lastName} - ${selectedProvider.category}`,
+                    price: selectedProvider.fee || 299,
+                    quantity: 1,
+                    image: selectedProvider.profilePhoto || "",
+                  };
+                  addToCart(item);
+                  setSelectedProvider(null);
+                  navigate("/cart");
+                }}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold shadow transition-all bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Book This Specialist</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+
+          </div>
+        </Modal>
+      )}
+
     </div>
   );
 };

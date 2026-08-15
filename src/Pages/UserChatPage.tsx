@@ -26,11 +26,13 @@ const UserChatPage: React.FC = () => {
 
             {/* Chatbox Rendered directly */}
             {bookingId && (
-                <UserChatbox 
-                    bookingId={bookingId} 
-                    onClose={() => navigate('/user-dashboard')} 
-                    isPage={true}
-                />
+                <div className={`w-full max-w-2xl rounded-3xl border shadow-xl overflow-hidden ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}>
+                    <UserChatbox 
+                        bookingId={bookingId} 
+                        onClose={() => navigate('/user-dashboard')} 
+                        isPage={true}
+                    />
+                </div>
             )}
         </div>
     );

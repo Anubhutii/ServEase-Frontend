@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { reverseGeocode } from "../Services/api";
-import { Button, Input, Drawer, Space, Avatar, Dropdown } from "antd";
+import {
+  getCachedLocation,
+  detectLocationInBackground,
+  setCachedLocation,
+} from "../Services/locationManager";
+import { Button, Drawer, Space, Avatar, Dropdown, Badge } from "antd";
 import type { MenuProps } from "antd";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaBars } from "react-icons/fa";
-import { FiMoon, FiSun, FiSearch } from "react-icons/fi";
-import { UserOutlined, LogoutOutlined, SwapOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation } from "react-router-dom";
+import { FiMoon, FiSun } from "react-icons/fi";
+import {
+  UserOutlined,
+  LogoutOutlined,
+  SwapOutlined,
+  DashboardOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
+import {
+  Sparkles,
+  ShoppingBag,
+  Briefcase,
+  PlusCircle,
+  ChevronDown,
+} from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../assets/logo.png";
 
@@ -16,78 +32,101 @@ import LocationPopup from "../Components/LocationPopup";
 import { useAuth } from "../Context/AuthContext";
 import { useTheme } from "../Context/ThemeContext";
 import { useRole } from "../Context/RoleContext";
+import { useCart } from "../Context/CartContext";
 import NotificationCenter from "../Components/NotificationCenter";
 
-const ThemeToggle = ({ theme, onClick, className }: { theme: string, onClick: () => void, className?: string }) => {
+const ThemeToggle = ({
+  theme,
+  onClick,
+  className,
+}: {
+  theme: string;
+  onClick: () => void;
+  className?: string;
+}) => {
   const isDark = theme === "dark";
 
   return (
     <div
       onClick={onClick}
-      className={`relative flex items-center w-16 h-8 rounded-full cursor-pointer bg-gradient-to-r from-[#ba5eed] to-[#517aff] shadow-inner ${className || ""}`}
+      className={`relative flex items-center w-14 h-7 rounded-full cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-slate-700 dark:to-slate-800 shadow-inner transition-colors duration-300 ${
+        className || ""
+      }`}
+      title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
     >
-      <div className="absolute w-full flex justify-between px-[11px] pointer-events-none top-1/2 -translate-y-1/2">
-        <FiMoon className="text-white" size={14} strokeWidth={3} />
-        <FiSun className="text-white" size={14} strokeWidth={3} />
+      <div className="absolute w-full flex justify-between px-2 pointer-events-none top-1/2 -translate-y-1/2">
+        <FiMoon className="text-white/80" size={12} strokeWidth={2.5} />
+        <FiSun className="text-white/90" size={12} strokeWidth={2.5} />
       </div>
 
       <div
-        className={`absolute w-6 h-6 bg-white rounded-full flex items-center justify-center transition-all duration-300 shadow-md top-1 ${isDark ? "left-1" : "left-[calc(100%-28px)]"
-          }`}
+        className={`absolute w-5 h-5 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center transition-all duration-300 shadow-md top-1 ${
+          isDark ? "left-1" : "left-[calc(100%-24px)]"
+        }`}
       >
         {isDark ? (
-          <FiMoon className="text-[#ba5eed]" size={14} strokeWidth={3} />
+          <FiMoon className="text-indigo-400" size={12} strokeWidth={2.5} />
         ) : (
-          <FiSun className="text-[#517aff]" size={14} strokeWidth={3} />
+          <FiSun className="text-amber-500" size={12} strokeWidth={2.5} />
         )}
       </div>
     </div>
   );
 };
 
-const CustomSearchBar = ({ value, onChange, onSearch, theme }: { value: string, onChange: (v: string) => void, onSearch: (v: string) => void, theme: string }) => {
-  return (
-    <div className="relative flex-1 max-w-xl w-full">
-      <div className={`relative flex items-center w-full h-[46px] rounded-[16px] transition-all duration-300 ${theme === 'dark' ? 'bg-slate-800 border-slate-700 border' : 'bg-[#fff] shadow-sm'}`}>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSearch(value)}
-          placeholder="Search services..."
-          className={`w-full h-full pl-5 pr-2 bg-transparent outline-none border-none font-medium text-[14px] rounded-l-[16px] ${theme === 'dark' ? 'text-white placeholder-gray-500' : 'text-gray-700 placeholder-gray-400'}`}
-        />
-        <div
-          onClick={() => onSearch(value)}
-          className={`flex flex-shrink-0 items-center justify-center w-[36px] h-[36px] mr-1.5 rounded-[12px] cursor-pointer hover:opacity-80 transition-opacity ${theme === 'dark' ? 'bg-slate-700' : 'bg-[#f4f4f4]'}`}
-        >
-          <FiSearch className={theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} size={16} strokeWidth={2.5} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CustomLocationButton = ({ location, onClick, theme, isMobile }: { location: string | null, onClick: () => void, theme: string, isMobile?: boolean }) => {
+const CustomLocationButton = ({
+  location,
+  onClick,
+  theme,
+  isMobile,
+}: {
+  location: string | null;
+  onClick: () => void;
+  theme: string;
+  isMobile?: boolean;
+}) => {
   return (
     <div
       onClick={onClick}
-      className={`relative flex items-center transition-all duration-300 cursor-pointer hover:opacity-90 gap-2 whitespace-nowrap
-        ${isMobile ? 'h-[36px] rounded-[12px] pl-2 pr-3' : 'h-[46px] rounded-[16px] pl-2.5 pr-4'}
-        ${theme === 'dark' ? 'bg-slate-800 border-slate-700 border' : 'bg-white shadow-sm'}
+      className={`relative flex items-center transition-all duration-200 cursor-pointer hover:border-blue-500/50 gap-2 whitespace-nowrap
+        ${
+          isMobile
+            ? "h-9 rounded-xl pl-2 pr-3"
+            : "h-10 rounded-xl pl-2.5 pr-3.5 border border-slate-200/80 dark:border-slate-800"
+        }
+        ${
+          theme === "dark"
+            ? "bg-slate-800/90 hover:bg-slate-800"
+            : "bg-slate-50 hover:bg-slate-100 shadow-2xs"
+        }
       `}
     >
-      <div className={`flex flex-shrink-0 items-center justify-center 
-        ${isMobile ? 'w-[26px] h-[26px] rounded-[8px]' : 'w-[34px] h-[34px] rounded-[12px]'}
-        ${theme === 'dark' ? 'bg-slate-700' : 'bg-[#f4f4f4]'}
-      `}>
-        <FaLocationDot className={theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} size={isMobile ? 12 : 14} />
+      <div
+        className={`flex flex-shrink-0 items-center justify-center 
+        ${
+          isMobile
+            ? "w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400"
+            : "w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400"
+        }
+      `}
+      >
+        <FaLocationDot size={isMobile ? 12 : 13} />
       </div>
-      {(!isMobile || location) && (
-        <span className={`font-medium ${isMobile ? 'text-[13px]' : 'text-[14px]'} ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
-          {location || (isMobile ? '' : 'Select Location')}
+      <div className="flex flex-col text-left">
+        {!isMobile && (
+          <span className="text-[9px] uppercase font-bold tracking-wider text-slate-400 leading-none">
+            Location
+          </span>
+        )}
+        <span
+          className={`font-bold truncate max-w-[110px] leading-tight ${
+            isMobile ? "text-xs" : "text-xs"
+          } ${theme === "dark" ? "text-slate-200" : "text-slate-800"}`}
+        >
+          {location || (isMobile ? "Location" : "Select City")}
         </span>
-      )}
+      </div>
+      <ChevronDown className="w-3 h-3 text-slate-400" />
     </div>
   );
 };
@@ -97,115 +136,55 @@ const Navbar: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
 
-  // Initialize selectedLocation from localStorage
-  const getStoredLocation = () => {
-    try {
-      const stored = localStorage.getItem("userLocation");
-      if (stored) return JSON.parse(stored);
-    } catch {
-      // ignore
-    }
-    return null;
-  };
-
-  const storedLoc = getStoredLocation();
-  const [selectedLocation, setSelectedLocation] = useState(storedLoc?.city || "");
-  const [searchValue, setSearchValue] = useState("");
+  // Fast synchronous location initialization from cache (0ms latency)
+  const [selectedLocation, setSelectedLocation] = useState<string>(() => {
+    return getCachedLocation()?.city || "";
+  });
 
   const nav = useNavigate();
   const location = useLocation();
 
-  // Automatic location detection logic
+  // Cart Context
+  const cartContext = useCart();
+  const cartItemCount = cartContext?.cart?.length || 0;
+
+  // Non-blocking background location detection (idle task)
   useEffect(() => {
-    if (!storedLoc && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          try {
-            const res = await reverseGeocode(lat, lon);
-            const loc = res.data?.location || {};
-            const address = loc.address || {};
-            const city =
-              address.city ||
-              address.town ||
-              address.village ||
-              address.county ||
-              address.state_district ||
-              "";
+    detectLocationInBackground();
 
-            const newLocation = { lat, lon, city };
-            localStorage.setItem("userLocation", JSON.stringify(newLocation));
-            setSelectedLocation(city);
-          } catch (error) {
-            console.error("Auto location failed", error);
-          }
-        },
-        (err) => console.error("Geolocation error", err)
-      );
-    }
-  }, []); // Run only once
-
-  // React Query with exponential backoff for returning users
-  const { data: qryLocationData } = useQuery({
-    queryKey: ["userLocation", storedLoc?.lat, storedLoc?.lon],
-    queryFn: async () => {
-      if (!storedLoc?.lat || !storedLoc?.lon) return null;
-      const res = await reverseGeocode(storedLoc.lat, storedLoc.lon);
-      return res.data;
-    },
-    enabled: !!storedLoc?.lat && !!storedLoc?.lon,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-  });
-
-  useEffect(() => {
-    if (qryLocationData?.location) {
-      const loc = qryLocationData.location;
-      const address = loc.address || {};
-      const city =
-        address.city ||
-        address.town ||
-        address.village ||
-        address.county ||
-        address.state_district ||
-        "";
-
-      if (city && city !== selectedLocation) {
-        setSelectedLocation(city);
-        localStorage.setItem(
-          "userLocation",
-          JSON.stringify({ ...storedLoc, city })
-        );
+    const handleLocationUpdated = (e: any) => {
+      if (e.detail?.city) {
+        setSelectedLocation(e.detail.city);
       }
-    }
-  }, [qryLocationData]);
+    };
 
-  // ✅ Auth state
+    window.addEventListener("location_updated", handleLocationUpdated);
+    return () => {
+      window.removeEventListener("location_updated", handleLocationUpdated);
+    };
+  }, []);
+
+  // Auth, Theme & Role states
   const { isLoggedIn, logout, user } = useAuth();
-
-  // ✅ Theme state
   const { theme, toggleTheme } = useTheme();
-
-  // ✅ Role state
   const { activeRole, availableRoles, switchRole } = useRole();
 
-  // AUTO-CLOSE MOBILE MENU ON ROUTE CHANGE
+  // Auto-close mobile menu on route change
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
-
-  const onSearch = (value: string) => {
-    if (value.trim()) nav('/service', { state: { search: value.trim() } });
-  };
 
   const profileMenu: MenuProps["items"] = [
     {
       key: "user-info",
       label: (
-        <div className="px-2 py-1">
-          <p className="font-semibold text-gray-800 dark:text-gray-200">{user?.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+        <div className="px-2 py-1.5">
+          <p className="font-bold text-sm text-slate-800 dark:text-slate-100">
+            {user?.name || "Customer"}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {user?.email}
+          </p>
         </div>
       ),
       disabled: true,
@@ -213,26 +192,56 @@ const Navbar: React.FC = () => {
     {
       type: "divider",
     },
-    ...(activeRole !== "provider" ? [{
-      key: "dashboard",
-      label: "Dashboard",
-      onClick: () => nav("/user-dashboard"),
-    }] : []),
-    ...(availableRoles.includes("provider") ? [{
-      key: "switch-role",
-      label: activeRole === "provider" ? "Switch to User" : "Switch to Provider",
-      icon: <SwapOutlined />,
-      onClick: () => {
-        const next = activeRole === "provider" ? "user" : "provider";
-        switchRole(next);
-        nav(next === "provider" ? "/provider-dashboard" : "/user-dashboard");
-      },
-    }] : []),
-    ...(!availableRoles.includes("provider") ? [{
-      key: "become-provider",
-      label: "Become Provider",
-      onClick: () => nav("/become-provider"),
-    }] : []),
+    ...(activeRole !== "provider"
+      ? [
+          {
+            key: "history",
+            label: "History & Activity",
+            icon: <DashboardOutlined />,
+            onClick: () => nav("/history"),
+          },
+          {
+            key: "post-job",
+            label: "Posted Jobs & Bids",
+            icon: <FileTextOutlined />,
+            onClick: () => nav("/post-job"),
+          },
+        ]
+      : [
+          {
+            key: "provider-dashboard",
+            label: "Provider Dashboard",
+            icon: <DashboardOutlined />,
+            onClick: () => nav("/provider-dashboard"),
+          },
+        ]),
+    ...(availableRoles.includes("provider")
+      ? [
+          {
+            key: "switch-role",
+            label:
+              activeRole === "provider"
+                ? "Switch to User Mode"
+                : "Switch to Provider Mode",
+            icon: <SwapOutlined />,
+            onClick: () => {
+              const next = activeRole === "provider" ? "user" : "provider";
+              switchRole(next);
+              nav(next === "provider" ? "/provider-dashboard" : "/user-dashboard");
+            },
+          },
+        ]
+      : []),
+    ...(!availableRoles.includes("provider")
+      ? [
+          {
+            key: "become-provider",
+            label: "Join as a Professional",
+            icon: <Briefcase className="w-3.5 h-3.5" />,
+            onClick: () => nav("/become-provider"),
+          },
+        ]
+      : []),
     {
       type: "divider",
     },
@@ -240,6 +249,7 @@ const Navbar: React.FC = () => {
       key: "logout",
       label: "Logout",
       icon: <LogoutOutlined />,
+      danger: true,
       onClick: logout,
     },
   ];
@@ -247,85 +257,152 @@ const Navbar: React.FC = () => {
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
+        initial={{ y: -60 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={`sticky top-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-16 border-b shadow-sm h-16 backdrop-blur-md transition-colors duration-300 ${theme === "dark"
-          ? "bg-slate-900/90 border-slate-800"
-          : "bg-white/90 border-gray-200"
-          }`}
+        transition={{ duration: 0.4 }}
+        className={`sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 border-b h-16 sm:h-18 backdrop-blur-xl transition-colors duration-300 ${
+          theme === "dark"
+            ? "bg-slate-950/85 border-slate-800/80 text-white"
+            : "bg-white/85 border-slate-200/80 text-slate-900"
+        }`}
       >
-        {/* LEFT: Logo */}
-
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center cursor-pointer"
-          onClick={() => nav("/")}
-        >
-          <img
-            src={logo}
-            alt="ServEase Logo"
-            className={`h-10 md:h-14 w-auto ${theme === "dark" ? "brightness-0 invert" : ""}`}
-          />
-        </motion.div>
-
-
-        {/* CENTER: Location + Search (Desktop only, hidden in provider mode) */}
-        {activeRole !== "provider" && (
-          <div className="hidden md:flex items-center gap-4 flex-1 max-w-2xl mx-8">
-            <CustomLocationButton
-              location={selectedLocation}
-              onClick={() => setShowLocation(true)}
-              theme={theme}
+        {/* ================= LEFT: LOGO & LOCATION ================= */}
+        <div className="flex items-center gap-4 sm:gap-6">
+          <motion.div
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center cursor-pointer shrink-0"
+            onClick={() => nav("/")}
+          >
+            <img
+              src={logo}
+              alt="ServEase Logo"
+              className={`h-9 sm:h-11 w-auto object-contain ${
+                theme === "dark" ? "brightness-0 invert" : ""
+              }`}
             />
-            <CustomSearchBar
-              value={searchValue}
-              onChange={setSearchValue}
-              onSearch={onSearch}
-              theme={theme}
-            />
-          </div>
-        )}
+          </motion.div>
 
-        {/* RIGHT: Desktop Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          <ThemeToggle theme={theme} onClick={toggleTheme} className="mr-2" />
-          {!isLoggedIn ? (
-            <Button
-              type="default"
-              onClick={() => setShowLogin(true)}
-              size="large"
-            >
-              Login
-            </Button>
-          ) : (
-            <div className="flex items-center gap-3">
-              <NotificationCenter />
-              <Dropdown menu={{ items: profileMenu }} placement="bottomRight">
-                <Avatar
-                  size="large"
-                  icon={<UserOutlined />}
-                  className="cursor-pointer"
-                />
-              </Dropdown>
+          {/* Location Selector (Desktop only, user mode) */}
+          {activeRole !== "provider" && (
+            <div className="hidden lg:flex items-center">
+              <CustomLocationButton
+                location={selectedLocation}
+                onClick={() => setShowLocation(true)}
+                theme={theme}
+              />
             </div>
-          )}
-
-          {!isLoggedIn && (
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => nav("/become-provider")}
-            >
-              Become Provider
-            </Button>
           )}
         </div>
 
-        {/* MOBILE: Location | Login | Menu */}
+        {/* ================= CENTER: USEFUL NAVIGATION LINKS ================= */}
+        {activeRole !== "provider" && (
+          <div className="hidden md:flex items-center gap-1 sm:gap-2">
+            <Link
+              to="/"
+              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                location.pathname === "/"
+                  ? "bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-bold"
+                  : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              Home
+            </Link>
+
+            <Link
+              to="/service"
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                location.pathname === "/service" || location.pathname === "/all-services"
+                  ? "bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-bold"
+                  : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <span>Services</span>
+            </Link>
+
+            <Link
+              to="/post-job"
+              state={{ highlight: true }}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                location.pathname === "/post-job"
+                  ? "bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 font-bold"
+                  : "text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              }`}
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Post Request</span>
+            </Link>
+          </div>
+        )}
+
+        {/* ================= RIGHT: UTILITY & USER ACTIONS ================= */}
+        <div className="hidden md:flex items-center gap-2.5 sm:gap-3">
+          {/* Theme Toggle */}
+          <ThemeToggle theme={theme} onClick={toggleTheme} />
+
+          {/* Cart / Bookings Button */}
+          {activeRole !== "provider" && (
+            <button
+              onClick={() => nav("/cart")}
+              className="relative p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-blue-600 transition-all duration-200 cursor-pointer"
+              title="View Cart & Bookings"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* User Auth state */}
+          {!isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowLogin(true)}
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-all duration-200 cursor-pointer"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={() => nav("/become-provider")}
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-600/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Become Provider</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5">
+              <NotificationCenter />
+              <Dropdown menu={{ items: profileMenu }} placement="bottomRight" arrow>
+                <div className="flex items-center gap-2 p-1.5 pr-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer border border-slate-200/60 dark:border-slate-800 transition-colors">
+                  <Avatar
+                    size={32}
+                    icon={<UserOutlined />}
+                    className="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold"
+                  />
+                  <div className="flex flex-col text-left max-w-[90px]">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate leading-tight">
+                      {user?.name || "Account"}
+                    </span>
+                    <span className="text-[10px] text-slate-400 capitalize">
+                      {activeRole}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </div>
+              </Dropdown>
+            </div>
+          )}
+        </div>
+
+        {/* ================= MOBILE HEADER ================= */}
         <div className="md:hidden flex items-center gap-2">
-          {/* Location (hidden in provider mode) */}
+          {/* Mobile Location button */}
           {activeRole !== "provider" && (
             <CustomLocationButton
               location={selectedLocation}
@@ -335,30 +412,44 @@ const Navbar: React.FC = () => {
             />
           )}
 
-          {/* Login / Avatar */}
+          {/* Cart shortcut */}
+          {activeRole !== "provider" && (
+            <button
+              onClick={() => nav("/cart")}
+              className="relative p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* Mobile Login / User Profile */}
           {!isLoggedIn ? (
             <Button
               type="default"
               size="small"
               onClick={() => setShowLogin(true)}
+              className="font-bold text-xs"
             >
               Login
             </Button>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <NotificationCenter />
               <Avatar
                 size="small"
                 icon={<UserOutlined />}
-                className="cursor-pointer"
+                className="cursor-pointer bg-blue-600 text-white"
+                onClick={() => nav(activeRole === "provider" ? "/provider-dashboard" : "/history")}
               />
             </div>
           )}
 
-          {/* Theme Toggle */}
-          <ThemeToggle theme={theme} onClick={toggleTheme} />
-
-          {/* Menu */}
+          {/* Mobile Hamburger Menu */}
           <Button
             type="text"
             icon={<FaBars size={18} />}
@@ -373,80 +464,161 @@ const Navbar: React.FC = () => {
           onClose={() => setShowLocation(false)}
           onSelectLocation={(city: string) => {
             setSelectedLocation(city);
-            const currentStored = getStoredLocation() || {};
+            const currentStored = getCachedLocation() || {};
             if (currentStored.city !== city) {
-              localStorage.setItem("userLocation", JSON.stringify({ ...currentStored, city }));
+              setCachedLocation({ ...currentStored, city });
             }
             setShowLocation(false);
           }}
         />
       </motion.nav>
 
-      {/* MOBILE DRAWER */}
+      {/* ================= MOBILE DRAWER ================= */}
       <Drawer
-        title="Menu"
+        title={
+          <div className="flex items-center gap-2">
+            <img
+              src={logo}
+              alt="ServEase Logo"
+              className={`h-7 w-auto ${theme === "dark" ? "brightness-0 invert" : ""}`}
+            />
+          </div>
+        }
         placement="right"
         onClose={() => setMenuOpen(false)}
         open={menuOpen}
-        width={280}
+        size={280}
       >
         <Space direction="vertical" size="middle" className="w-full">
-          <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
-            <span className="text-slate-700 dark:text-slate-300 font-medium">
-              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+          {/* Theme switcher */}
+          <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+            <span className="text-slate-700 dark:text-slate-300 font-semibold text-xs">
+              {theme === "dark" ? "Dark Mode" : "Light Mode"}
             </span>
             <ThemeToggle
               theme={theme}
               onClick={() => {
                 toggleTheme();
-                setMenuOpen(false);
               }}
             />
           </div>
 
-          {isLoggedIn && (
-            <Button
-              block
-              danger
-              icon={<LogoutOutlined />}
-              onClick={() => {
-                logout();
-                setMenuOpen(false);
-              }}
-              size="large"
+          {/* Main Links */}
+          <div className="flex flex-col gap-1 text-left">
+            <Link
+              to="/"
+              onClick={() => setMenuOpen(false)}
+              className="px-3 py-2 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-800"
             >
-              Logout
-            </Button>
-          )}
+              Home
+            </Link>
 
-          <Button
-            block
-            type="primary"
-            onClick={() => {
-              if (isLoggedIn && availableRoles.includes("provider")) {
-                nav(activeRole === "provider" ? "/provider-dashboard" : "/user-dashboard");
-              } else {
-                nav("/become-provider");
-              }
-              setMenuOpen(false);
-            }}
-            size="large"
-          >
-            {(isLoggedIn && availableRoles.includes("provider")) ? "Dashboard" : "Become Provider"}
-          </Button>
-          {isLoggedIn && activeRole === "user" && (
-            <Button
-              block
-              type="primary"
-              onClick={() => {
-                nav("/post-job");
-                setMenuOpen(false);
-              }}
-              size="large"
+            <Link
+              to="/service"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-800"
             >
-              Post a Request
-            </Button>
-          )}
+              <Sparkles className="w-4 h-4 text-blue-500" />
+              <span>All Services</span>
+            </Link>
+
+            <Link
+              to="/post-job"
+              state={{ highlight: true }}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-800 text-left w-full"
+            >
+              <PlusCircle className="w-4 h-4 text-indigo-500" />
+              <span>Post a Request</span>
+            </Link>
+
+            <Link
+              to="/cart"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-slate-800 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-800"
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-emerald-500" />
+                <span>My Cart & Bookings</span>
+              </div>
+              {cartItemCount > 0 && (
+                <Badge count={cartItemCount} className="ml-auto" />
+              )}
+            </Link>
+          </div>
+
+          {/* Provider / Dashboard Action */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+            {isLoggedIn ? (
+              <>
+                <Button
+                  block
+                  type="primary"
+                  onClick={() => {
+                    nav(
+                      activeRole === "provider"
+                        ? "/provider-dashboard"
+                        : "/history"
+                    );
+                    setMenuOpen(false);
+                  }}
+                  size="large"
+                >
+                  View Activity & History
+                </Button>
+
+                {availableRoles.includes("provider") && (
+                  <Button
+                    block
+                    icon={<SwapOutlined />}
+                    onClick={() => {
+                      const next = activeRole === "provider" ? "user" : "provider";
+                      switchRole(next);
+                      nav(next === "provider" ? "/provider-dashboard" : "/user-dashboard");
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Switch to {activeRole === "provider" ? "User" : "Provider"}
+                  </Button>
+                )}
+
+                <Button
+                  block
+                  danger
+                  icon={<LogoutOutlined />}
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  block
+                  type="primary"
+                  onClick={() => {
+                    nav("/become-provider");
+                    setMenuOpen(false);
+                  }}
+                  size="large"
+                >
+                  Become a Provider
+                </Button>
+                <Button
+                  block
+                  onClick={() => {
+                    setShowLogin(true);
+                    setMenuOpen(false);
+                  }}
+                >
+                  Login
+                </Button>
+              </>
+            )}
+          </div>
         </Space>
       </Drawer>
     </>

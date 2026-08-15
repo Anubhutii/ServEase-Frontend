@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, InputNumber, Button, message } from 'antd';
+import { Modal, Form, Input, InputNumber, Button, App } from 'antd';
 import axios from '../Services/axios';
 import { useAuth } from '../Context/AuthContext';
 import { useTheme } from '../Context/ThemeContext';
@@ -14,6 +14,7 @@ type BidSubmissionModalProps = {
 };
 
 const BidSubmissionModal: React.FC<BidSubmissionModalProps> = ({ job, isVisible, onClose, onSuccess }) => {
+    const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
     const { theme } = useTheme();
